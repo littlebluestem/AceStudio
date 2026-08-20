@@ -25,6 +25,7 @@
   --maxw:1180px;
   --measure:60ch;
   --bay:clamp(52px,6.4vw,104px);
+  --mark:clamp(46px,5.5vw,66px);
 }
 
 *{box-sizing:border-box;}
@@ -47,7 +48,7 @@ html{scroll-behavior:smooth;}
   font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--ink-3);display:flex;align-items:center;gap:16px;margin:0;
 }
-.eyebrow .dot{width:30px;height:30px;flex:0 0 auto;}
+.eyebrow .dot{width:var(--mark);height:var(--mark);flex:0 0 auto;}
 .centred .eyebrow,.split .eyebrow,.hero .eyebrow{flex-direction:column;gap:16px;}
 h2,h3{font-weight:600;letter-spacing:-.03em;margin:0;text-wrap:balance;}
 .wordmark{margin:0;font-size:0;line-height:0;}
@@ -140,7 +141,7 @@ dl.spec dd{
 /* ---- colour-cycling mark ---- */
 .hue{margin-top:clamp(34px,5vw,60px);display:flex;justify-content:center;}
 .hue svg{
-  width:clamp(46px,5.5vw,66px);height:auto;
+  width:var(--mark);height:auto;
   fill:#AC2521;
   animation:acehue 12s linear infinite;
 }
@@ -203,7 +204,7 @@ ul.uses li{
   display:flex;align-items:center;justify-content:center;gap:16px;
   font-size:clamp(17px,1.9vw,21px);letter-spacing:-.01em;
 }
-ul.uses li svg{width:18px;height:18px;flex:0 0 auto;}
+ul.uses li svg{width:var(--mark);height:var(--mark);flex:0 0 auto;}
 ul.uses li:last-child{border-bottom:1px solid var(--rule);}
 
 /* ---- form ---- */
