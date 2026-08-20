@@ -199,10 +199,10 @@ dl.spec dd{
 .field label{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);}
 .field input,.field textarea,.field select{
   font-family:var(--display);font-size:16px;color:var(--ink);background:transparent;
-  border:0;border-bottom:1px solid var(--rule);padding:10px 0;border-radius:0;
+  border:0;border-bottom:1px solid transparent;padding:10px 0;border-radius:0;
 }
 .field select option{color:#000022;background:#FFF8EF;}
-.field textarea{resize:vertical;min-height:70px;}
+.field textarea{resize:none;min-height:96px;}
 .field input::placeholder,.field textarea::placeholder{color:var(--ink-3);}
 .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-bottom-color:var(--red);}
 .form .actions{grid-column:1/-1;display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:6px;}
