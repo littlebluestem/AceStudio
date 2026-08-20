@@ -143,7 +143,6 @@ dl.spec dd{
   gap:clamp(10px,1.4vw,18px);
   scrollbar-width:none;-ms-overflow-style:none;
   -webkit-overflow-scrolling:touch;
-  cursor:grab;
 }
 .gallery::-webkit-scrollbar{display:none;}
 .gallery figure{margin:0;flex:0 0 100%;scroll-snap-align:center;}
@@ -151,6 +150,16 @@ dl.spec dd{
   display:block;width:100%;aspect-ratio:3/2;object-fit:cover;
   border:1px solid var(--keyline);
 }
+.gallery-wrap{position:relative;width:100%;}
+.zone{
+  position:absolute;top:0;bottom:0;width:50%;z-index:3;
+  border:0;background:transparent;padding:0;display:none;
+}
+@media (hover:hover) and (pointer:fine){ .zone{display:block;} }
+.zone.prev{left:0;cursor:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2234%22%20height%3D%2234%22%20viewBox%3D%220%200%2034%2034%22%3E%3Cpath%20d%3D%22M21%208%20L12%2017%20L21%2026%22%20fill%3D%22none%22%20stroke%3D%22%23FFF8EF%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%220.9%22%2F%3E%3Cpath%20d%3D%22M21%208%20L12%2017%20L21%2026%22%20fill%3D%22none%22%20stroke%3D%22%23000022%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 17 17, w-resize;}
+.zone.next{right:0;cursor:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2234%22%20height%3D%2234%22%20viewBox%3D%220%200%2034%2034%22%3E%3Cpath%20d%3D%22M13%208%20L22%2017%20L13%2026%22%20fill%3D%22none%22%20stroke%3D%22%23FFF8EF%22%20stroke-width%3D%225.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%220.9%22%2F%3E%3Cpath%20d%3D%22M13%208%20L22%2017%20L13%2026%22%20fill%3D%22none%22%20stroke%3D%22%23000022%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 17 17, e-resize;}
+.zone:focus-visible{outline:1.5px solid var(--red);outline-offset:-4px;}
+
 .dots{display:flex;justify-content:center;gap:10px;margin-top:18px;}
 .dots button{
   width:7px;height:7px;padding:0;border:1px solid var(--ink-3);background:transparent;
@@ -502,27 +511,54 @@ body{
     var figs = Array.prototype.slice.call(g.querySelectorAll('figure'));
     if (figs.length < 2) return;
     g.setAttribute('role','region');
-    g.setAttribute('aria-label','Photo gallery, swipe or use the buttons below');
+    g.setAttribute('aria-label','Photo gallery, swipe or use the arrows');
+
+    var wrap = document.createElement('div');
+    wrap.className = 'gallery-wrap';
+    g.parentNode.insertBefore(wrap, g);
+    wrap.appendChild(g);
+
+    function mkZone(cls, label){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'zone ' + cls;
+      b.setAttribute('aria-label', label);
+      wrap.appendChild(b);
+      return b;
+    }
+    var prev = mkZone('prev','Previous image');
+    var next = mkZone('next','Next image');
+
     var dots = document.createElement('div');
     dots.className = 'dots';
     figs.forEach(function(f, i){
       var b = document.createElement('button');
       b.type = 'button';
       b.setAttribute('aria-label', 'Show image ' + (i+1) + ' of ' + figs.length);
-      b.addEventListener('click', function(){
-        g.scrollTo({ left: f.offsetLeft, behavior: smooth });
-      });
+      b.addEventListener('click', function(){ go(i); });
       dots.appendChild(b);
     });
-    g.parentNode.insertBefore(dots, g.nextSibling);
+    wrap.parentNode.insertBefore(dots, wrap.nextSibling);
     var btns = Array.prototype.slice.call(dots.querySelectorAll('button'));
-    function sync(){
+
+    function currentIndex(){
       var mid = g.scrollLeft + g.clientWidth / 2, best = 0, bd = Infinity;
       figs.forEach(function(f, i){
         var d = Math.abs(f.offsetLeft + f.offsetWidth / 2 - mid);
         if (d < bd) { bd = d; best = i; }
       });
-      btns.forEach(function(b, i){ b.setAttribute('aria-current', i === best ? 'true' : 'false'); });
+      return best;
+    }
+    function go(i){
+      var n = figs.length;
+      i = ((i % n) + n) % n;
+      g.scrollTo({ left: figs[i].offsetLeft, behavior: smooth });
+    }
+    prev.addEventListener('click', function(){ go(currentIndex() - 1); });
+    next.addEventListener('click', function(){ go(currentIndex() + 1); });
+
+    function sync(){
+      var cur = currentIndex();
+      btns.forEach(function(b, i){ b.setAttribute('aria-current', i === cur ? 'true' : 'false'); });
     }
     var tick = false;
     g.addEventListener('scroll', function(){
