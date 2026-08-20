@@ -127,6 +127,11 @@ dl.spec dd{
   font-variant-numeric:tabular-nums;color:var(--ink);
 }
 
+/* ---- centred statement ---- */
+.centred{text-align:center;}
+.centred .eyebrow{justify-content:center;}
+.centred .lede{max-width:44ch;margin:clamp(26px,3.6vw,40px) auto 0;}
+
 /* ---- uses ---- */
 ul.uses{list-style:none;margin:0;padding:0;}
 ul.uses li{
@@ -136,12 +141,6 @@ ul.uses li{
 }
 ul.uses li svg{width:12px;height:12px;flex:0 0 auto;}
 ul.uses li:last-child{border-bottom:1px solid var(--rule);}
-
-/* ---- quote ---- */
-.quote{
-  font-family:var(--mono);font-size:clamp(14px,1.55vw,17px);line-height:1.85;
-  color:var(--ink);max-width:44ch;
-}
 
 /* ---- form ---- */
 .form{display:grid;grid-template-columns:1fr 1fr;gap:26px 32px;}
@@ -258,12 +257,9 @@ body{
 
 <section id="mission">
   <div class="wrap">
-    <div class="split rv">
-      <div class="stack-m">
-        <p class="eyebrow"><svg class="dot" style="fill:var(--red)" aria-hidden="true"><use href="#mark"/></svg>Our mission</p>
-        <p class="lede measure">Build an intentional, approachable haven for Houston's creative community &#8212; a home for workshops, lectures, film screenings, book readings, intimate musical performances, photography, and video work.</p>
-      </div>
-      <p class="quote">Ace Studio is the space we wish we had coming up in the industry. A friendly home built for meaningful, small-group creative experiences that does not exist anywhere else in Houston.</p>
+    <div class="centred rv">
+      <p class="eyebrow"><svg class="dot" style="fill:var(--red)" aria-hidden="true"><use href="#mark"/></svg>Our mission</p>
+      <p class="lede">Build an intentional, approachable haven for Houston's creative community &#8212; a home for workshops, lectures, film screenings, book readings, intimate musical performances, photography, and video work.</p>
     </div>
   </div>
 </section>
