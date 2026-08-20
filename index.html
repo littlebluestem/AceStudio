@@ -192,16 +192,6 @@ dl.spec dd{
 .centred .eyebrow{justify-content:center;}
 .centred .lede{max-width:44ch;margin:clamp(26px,3.6vw,40px) auto 0;}
 
-/* ---- uses ---- */
-ul.uses{list-style:none;margin:0;padding:0;width:100%;}
-ul.uses li{
-  border-top:1px solid var(--rule);padding:clamp(16px,2.2vw,24px) 0;
-  display:flex;align-items:center;justify-content:center;gap:16px;
-  font-size:clamp(17px,1.9vw,21px);letter-spacing:-.01em;
-}
-ul.uses li svg{width:var(--mark);height:var(--mark);flex:0 0 auto;}
-ul.uses li:last-child{border-bottom:1px solid var(--rule);}
-
 /* ---- form ---- */
 .form{display:grid;grid-template-columns:1fr 1fr;gap:26px 32px;}
 .form .full{grid-column:1/-1;}
@@ -313,7 +303,6 @@ body{
     </a>
     <div class="navlinks">
       <a href="#space">The space</a>
-      <a href="#uses">What happens here</a>
     </div>
     <a class="navcta" href="#enquire">Enquire</a>
   </div>
@@ -368,28 +357,6 @@ body{
     </div>
   </div>
 </section>
-
-<section id="uses">
-  <div class="wrap stack-l">
-    <div class="split rv">
-      <div class="stack-m">
-        <h2 style="max-width:15ch">Built for small groups.</h2>
-      </div>
-      <p class="body">The room is sized for the kind of gathering that actually works &#8212; close enough that everyone in it is part of it.</p>
-    </div>
-    <div class="two rv">
-      <ul class="uses">
-        <li><svg style="fill:var(--carrot)" aria-hidden="true"><use href="#mark"/></svg>Workshops</li>
-        <li><svg style="fill:var(--blue)" aria-hidden="true"><use href="#mark"/></svg>Lectures</li>
-        <li><svg style="fill:var(--pink)" aria-hidden="true"><use href="#mark"/></svg>Film screenings</li>
-        <li><svg style="fill:var(--green)" aria-hidden="true"><use href="#mark"/></svg>Book readings</li>
-        <li><svg style="fill:var(--red)" aria-hidden="true"><use href="#mark"/></svg>Intimate musical performances</li>
-        <li><svg style="fill:var(--carrot)" aria-hidden="true"><use href="#mark"/></svg>Photography</li>
-        <li><svg style="fill:var(--blue)" aria-hidden="true"><use href="#mark"/></svg>Video work</li>
-      </ul>
-    </div>
-  </div>
-</section>
 <section id="enquire">
   <div class="wrap stack-l">
     <div class="split rv">
@@ -435,7 +402,6 @@ body{
       </div>
       <div class="footmono">
         <a href="#space">The space</a><br>
-        <a href="#uses">What happens here</a><br>
         </div>
       <div class="footmono">
         603 W 11th St, Suite 100<br>
