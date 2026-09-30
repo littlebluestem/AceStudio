@@ -111,7 +111,7 @@ section{padding-block:var(--bay);}
 }
 .dots button[aria-current="true"]{background:var(--red);border-color:var(--red);}
 .galcap{
-  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink-3);margin:14px 0 0;text-align:center;
 }
 
@@ -182,11 +182,21 @@ body{background:#FFF8EF;}
 .split-entry .entry-info .eyebrow{
   flex-direction:row;justify-content:flex-start;gap:12px;flex-wrap:nowrap;
   font-family:"neue-kabel","Rethink Sans",sans-serif;font-weight:700;
-  font-size:clamp(16px,1.7vw,24px);letter-spacing:-.01em;text-transform:uppercase;
+  font-size:14px;letter-spacing:-.01em;text-transform:uppercase;
   white-space:nowrap;
 }
 .split-entry .entry-info .eyebrow .dot{width:0.85em;height:0.85em;}
-.split-entry .entry-info .lede{margin-top:clamp(20px,3vw,32px);margin-left:0;margin-right:0;max-width:46ch;}
+.split-entry .entry-info .lede{font-size:14px;margin-top:clamp(20px,3vw,32px);margin-left:0;margin-right:0;max-width:46ch;}
+.split-entry .entry-info .lede a{color:inherit;text-decoration:underline;text-underline-offset:2px;}
+.split-entry .entry-info .lede a:hover{color:var(--red-ink);}
+.cat-menu{
+  display:flex;gap:24px;align-items:center;flex-wrap:wrap;
+  font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;
+  margin-bottom:16px;
+}
+.cat-menu a{text-decoration:none;color:var(--ink);}
+.cat-menu a:hover{color:var(--red-ink);}
+.cat-menu a:first-child{color:var(--red-ink);}
 @media(max-width:860px){
   .split-entry .wrap{flex-direction:column;gap:clamp(28px,6vw,48px);}
   .split-entry .entry-info{padding-top:0;position:static;}
@@ -227,8 +237,13 @@ body{background:#FFF8EF;}
     </div>
   </div>
   <div class="entry-info rv">
+      <nav class="cat-menu">
+        <a href="#">Info</a>
+        <a href="#">Events</a>
+        <a href="#">Contact</a>
+      </nav>
       <p class="eyebrow"><svg class="dot cycle" aria-hidden="true"><use href="#mark"/></svg>Our mission</p>
-      <p class="lede">Ace Studio was founded by Bethany Ochs and Javier Fernandez as a photography studio and gathering space for local and visiting professional photographers. It&#8217;s an approachable and intentionally designed space with all the amenities to make your best creative work possible. In addition to being a photo studio, Ace Studio hosts workshops, lectures, film screenings, book readings, intimate musical performances and more.</p>
+      <p class="lede">Ace Studio was founded by <a href="https://www.bethanyellenochs.com/" target="_blank" rel="noopener">Bethany Ochs</a> and <a href="https://www.topspinstudios.com/" target="_blank" rel="noopener">Javier Fernandez</a> as a photography studio and gathering space for local and visiting professional photographers. It&#8217;s an approachable and intentionally designed space with all the amenities to make your best creative work possible. In addition to being a photo studio, Ace Studio hosts workshops, lectures, film screenings, book readings, intimate musical performances and more.</p>
       <p class="eyebrow" style="margin-top:clamp(28px,4vw,44px)"><svg class="dot" style="fill:var(--red)" aria-hidden="true"><use href="#mark"/></svg>About the space</p>
       <p class="lede" style="margin-top:14px">The photo studio portion is 200 sq/ft and the 450 sq/ft living room area is equipped with ample seating, a projector, and speakers. A separate kitchenette and private bathrooms are also available.</p>
       <p class="lede" style="margin-top:14px">Additional photography equipment is available for rent upon request.</p>
