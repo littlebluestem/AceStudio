@@ -226,16 +226,11 @@ footer{
   padding:0 var(--pad) clamp(40px,6vw,64px);
   text-align:center;
 }
-.footer-wordmark img{display:block;width:138px;height:auto;margin:0 auto var(--sub);}
-.footer-links{
-  display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
-  gap:var(--pad);
-  font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;
+.footer-wordmark img{display:block;width:138px;height:auto;margin:0 auto;}
+/* desktop: center the footer under the image column, not the full page */
+@media(min-width:861px){
+  footer > *{margin-left:var(--foot-x,0);width:var(--foot-w,auto);}
 }
-.footer-links a{
-  color:var(--ink);text-decoration:none;transition:color .2s;
-}
-.footer-links a:hover{color:var(--red-ink);}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -326,10 +321,6 @@ footer{
 </header>
 <footer>
   <div class="footer-wordmark"><img alt="Ace Studio logo" src="images/ace-submark.png" width="420" height="304" loading="lazy" decoding="async"></div>
-  <div class="footer-links">
-    <a href="https://www.instagram.com/thisisacestudio/" target="_blank" rel="noopener">Instagram</a>
-    <a href="mailto:info@thisisacestudio.com">info@thisisacestudio.com</a>
-  </div>
 </footer>
 
 <script>
@@ -435,7 +426,14 @@ footer{
 (function(){
   var root = document.documentElement, hero = document.querySelector('header.hero'), footer = document.querySelector('footer');
   if (!hero || !footer) return;
+  var media = hero.querySelector('.entry-media');
   function setTail(){
+    if (media) {
+      var m = media.getBoundingClientRect(), f = footer.getBoundingClientRect();
+      var fpl = parseFloat(getComputedStyle(footer).paddingLeft) || 0;
+      root.style.setProperty('--foot-x', Math.round(m.left - f.left - fpl) + 'px');
+      root.style.setProperty('--foot-w', Math.round(m.width) + 'px');
+    }
     var pad = parseFloat(getComputedStyle(hero).paddingBottom) || 0;
     root.style.setProperty('--tail', Math.round(pad + footer.offsetHeight) + 'px');
   }

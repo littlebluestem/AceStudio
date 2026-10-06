@@ -17,7 +17,8 @@ in particular — the page asks for an enquiry rather than stating a number.
 
 - Pricing. The deck gives none, so the site quotes none.
 - Newsletter. There is no signup yet, so the footer has no newsletter link.
-  Add one to `.footer-links` once it exists.
+  The footer is just the submark for now (the Instagram/email links were
+  removed); add a links row back under `.footer-wordmark` when it exists.
 - Enquiry form. It opens the visitor's email app with a pre-filled message to
   info@thisisacestudio.com (a `mailto:` link, no server). It does not work for
   people without a mail app configured. Sending directly from the page would
@@ -31,8 +32,8 @@ in particular — the page asks for an enquiry rather than stating a number.
 There isn't one. `index.html` is the whole page: DM Mono is embedded as a data
 URI, the logo marks are inline SVG, and photography and flyers live in
 `images/` as ordinary files (flyers have a 1600px and a 3000px version, picked
-automatically with `srcset`). No dependencies, no build step. The only outside
-request is the Instagram link.
+automatically with `srcset`). No dependencies, no build step. No outside
+requests.
 
 When swapping a photo, export it around 2400px wide (flyers 3000px) and keep
 the same filename, or update the `<img>` tag including its `width`/`height`.
