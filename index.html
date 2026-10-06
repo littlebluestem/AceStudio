@@ -145,13 +145,14 @@ body{background:#FFF8EF;}
 .split-entry .wrap{
   display:flex;align-items:flex-start;gap:clamp(28px,5vw,72px);
   text-align:left;max-width:none;
+  margin-bottom:calc(-1 * var(--tail,0px));
 }
-.split-entry .entry-media{flex:1 1 75%;min-width:0;padding-top:var(--pad);}
+.split-entry .entry-media{flex:1 1 75%;min-width:0;padding-top:var(--pad);padding-bottom:var(--tail,0px);}
 .site-label{
   font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink);margin-bottom:16px;
 }
-.split-entry .entry-info{flex:1 1 25%;min-width:0;padding-top:var(--pad);text-align:left;position:sticky;top:0;align-self:flex-start;}
+.split-entry .entry-info{flex:1 1 25%;min-width:0;padding-top:0;text-align:left;position:sticky;top:0;align-self:flex-start;max-height:100vh;overflow-y:auto;scrollbar-width:thin;}
 .split-entry .entry-info .lede{font-size:14px;margin-top:clamp(20px,3vw,32px);margin-left:0;margin-right:0;max-width:46ch;}
 .split-entry .entry-info .lede a{color:inherit;text-decoration:underline;text-underline-offset:2px;}
 .split-entry .entry-info .lede a:hover{color:var(--red-ink);}
@@ -163,6 +164,7 @@ body{background:#FFF8EF;}
 .cat-menu a{text-decoration:none;color:var(--ink);}
 .cat-menu a:hover{color:var(--red-ink);}
 .cat-menu a.active{color:var(--red-ink);}
+.entry-info .cat-menu{position:sticky;top:0;z-index:2;background:var(--ground);padding:var(--pad) 0 12px;margin-bottom:4px;}
 .events-view{
   list-style:none;margin:0;padding:0;
   display:flex;flex-direction:column;
@@ -187,8 +189,10 @@ body{background:#FFF8EF;}
 .photo-index li{color:var(--ink-3);transition:color .2s,font-weight .2s;}
 .photo-index li.active{color:var(--red-ink);font-weight:700;}
 @media(max-width:860px){
-  .split-entry .wrap{flex-direction:column;gap:clamp(28px,6vw,48px);}
-  .split-entry .entry-info{padding-top:0;position:static;}
+  .split-entry .wrap{flex-direction:column;gap:clamp(28px,6vw,48px);margin-bottom:0;}
+  .split-entry .entry-media{padding-bottom:0;}
+  .split-entry .entry-info{padding-top:0;position:static;max-height:none;overflow:visible;}
+  .entry-info .cat-menu{position:static;padding:0 0 12px;}
 }
 
 /* ---- enquiry form, pulled from the original site design ---- */
@@ -427,5 +431,17 @@ footer{
       + '?subject=' + encodeURIComponent('Enquiry: ' + kind + ' \u2014 ' + val('f-name'))
       + '&body=' + encodeURIComponent(body);
   });
+})();
+(function(){
+  var root = document.documentElement, hero = document.querySelector('header.hero'), footer = document.querySelector('footer');
+  if (!hero || !footer) return;
+  function setTail(){
+    var pad = parseFloat(getComputedStyle(hero).paddingBottom) || 0;
+    root.style.setProperty('--tail', Math.round(pad + footer.offsetHeight) + 'px');
+  }
+  setTail();
+  window.addEventListener('resize', setTail);
+  window.addEventListener('load', setTail);
+  if ('ResizeObserver' in window) new ResizeObserver(setTail).observe(footer);
 })();
 </script>
