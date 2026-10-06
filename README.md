@@ -16,18 +16,28 @@ in particular — the page asks for an enquiry rather than stating a number.
 ## Still to resolve
 
 - Pricing. The deck gives none, so the site quotes none.
-- Neue Kabel Bold. The brand display face is licensed via Adobe Fonts and is
-  not embedded here; headlines fall back to Rethink Sans SemiBold. The logo
-  lockups are the real outlined vectors and are correct.
-- The enquiry form is not wired to anything.
+- Newsletter. There is no signup yet, so the footer has no newsletter link.
+  Add one to `.footer-links` once it exists.
+- Enquiry form. It opens the visitor's email app with a pre-filled message to
+  info@thisisacestudio.com (a `mailto:` link, no server). It does not work for
+  people without a mail app configured. Sending directly from the page would
+  need Cloudflare Email Sending (beta, adds SPF/DKIM DNS records) or a form
+  service.
+- Neue Kabel Bold (Adobe Fonts) is no longer used or loaded. The page is set in
+  DM Mono throughout.
 
 ## Build
 
-There isn't one. `index.html` is a single self-contained file: fonts (Rethink
-Sans, DM Mono) and all photography are embedded as data URIs, and the logo is
-inline SVG. No external requests, no dependencies, no build step.
+There isn't one. `index.html` is the whole page: DM Mono is embedded as a data
+URI, the logo marks are inline SVG, and photography and flyers live in
+`images/` as ordinary files (flyers have a 1600px and a 3000px version, picked
+automatically with `srcset`). No dependencies, no build step. The only outside
+request is the Instagram link.
 
-Edit the file, commit, push.
+When swapping a photo, export it around 2400px wide (flyers 3000px) and keep
+the same filename, or update the `<img>` tag including its `width`/`height`.
+
+Edit, commit, push.
 
 ## Deployment
 
