@@ -19,11 +19,14 @@ in particular — the page asks for an enquiry rather than stating a number.
 - Newsletter. There is no signup yet, so the footer has no newsletter link.
   The footer is just the submark for now (the Instagram/email links were
   removed); add a links row back under `.footer-wordmark` when it exists.
-- Enquiry form. It opens the visitor's email app with a pre-filled message to
-  info@thisisacestudio.com (a `mailto:` link, no server). It does not work for
-  people without a mail app configured. Sending directly from the page would
-  need Cloudflare Email Sending (beta, adds SPF/DKIM DNS records) or a form
-  service.
+- Enquiry form. Posts to `functions/api/enquiry.js` (a Cloudflare Pages
+  Function), which emails it to info@thisisacestudio.com through Resend with
+  the visitor as Reply-To. Needs `RESEND_API_KEY` set as an encrypted variable
+  on the Pages project (Settings > Variables and Secrets, Production), and
+  thisisacestudio.com verified as a sending domain in Resend (its DNS records
+  sit on a `send.` subdomain and don't touch the Google Workspace mail
+  records). `MAIL_TO` / `MAIL_FROM` override the defaults. Without the key the
+  form says it didn't go through and points people to the email address.
 - Neue Kabel Bold (Adobe Fonts) is no longer used or loaded. The page is set in
   DM Mono throughout.
 
@@ -33,7 +36,7 @@ There isn't one. `index.html` is the whole page: DM Mono is embedded as a data
 URI, the logo marks are inline SVG, and photography and flyers live in
 `images/` as ordinary files (flyers have a 1600px and a 3000px version, picked
 automatically with `srcset`). No dependencies, no build step. No outside
-requests.
+requests, apart from the enquiry form posting to `/api/enquiry`.
 
 When swapping a photo, export it around 2400px wide (flyers 3000px) and keep
 the same filename, or update the `<img>` tag including its `width`/`height`.
@@ -45,5 +48,5 @@ Edit, commit, push.
 Cloudflare Pages, auto-deploying from `main` — https://ace-studio-mockup.pages.dev
 
 DNS for thisisacestudio.com is on Cloudflare; mail runs on Google Workspace
-(MX/SPF/DKIM/DMARC live) and is independent of the web records. The domain is
-not yet pointed at this site.
+(MX/SPF/DKIM/DMARC live) and is independent of the web records. The domain now
+serves this site.

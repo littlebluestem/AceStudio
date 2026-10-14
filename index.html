@@ -310,8 +310,9 @@ footer{
         <div class="field"><label for="f-hours">Hours needed</label><input id="f-hours" type="text" placeholder="Half day, full day, evening"></div>
         <div class="field full"><label for="f-notes">Anything else</label><textarea id="f-notes" maxlength="1200" placeholder="What you're making, and what you'll need from the room."></textarea></div>
         <div class="actions">
+          <div style="position:absolute;left:-9999px" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" type="text" tabindex="-1" autocomplete="off"></div>
           <button class="submit" type="submit">Send enquiry</button>
-          <small>Opens your email app, ready to send</small>
+          <small id="f-status" role="status" aria-live="polite">We usually reply within a couple of days</small>
           <small><a href="mailto:info@thisisacestudio.com" style="text-decoration:none;border-bottom:1px solid currentColor">info@thisisacestudio.com</a></small>
         </div>
       </form>
@@ -407,20 +408,30 @@ footer{
   form.addEventListener('submit', function(ev){
     ev.preventDefault();
     var val = function(id){ return (document.getElementById(id).value || '').trim(); };
-    var kind = document.getElementById('f-kind').value;
-    var body = [
-      'Name: ' + val('f-name'),
-      'Email: ' + val('f-email'),
-      'Planning: ' + kind,
-      'Dates: ' + val('f-dates'),
-      'Group size: ' + val('f-size'),
-      'Hours needed: ' + val('f-hours'),
-      '',
-      val('f-notes')
-    ].join('\r\n');
-    window.location.href = 'mailto:info@thisisacestudio.com'
-      + '?subject=' + encodeURIComponent('Enquiry: ' + kind + ' \u2014 ' + val('f-name'))
-      + '&body=' + encodeURIComponent(body);
+    var status = document.getElementById('f-status');
+    var button = form.querySelector('.submit');
+    button.disabled = true;
+    button.textContent = 'Sending\u2026';
+    fetch('/api/enquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: val('f-name'), email: val('f-email'),
+        kind: document.getElementById('f-kind').value,
+        dates: val('f-dates'), size: val('f-size'), hours: val('f-hours'),
+        notes: val('f-notes'), website: val('f-website')
+      })
+    }).then(function(res){
+      if (!res.ok) throw new Error(res.status);
+      form.reset();
+      button.textContent = 'Sent';
+      status.textContent = 'Thanks \u2014 we\u2019ll be in touch soon';
+      setTimeout(function(){ button.disabled = false; button.textContent = 'Send enquiry'; }, 4000);
+    }).catch(function(){
+      button.disabled = false;
+      button.textContent = 'Send enquiry';
+      status.textContent = 'That didn\u2019t go through \u2014 please email us below';
+    });
   });
 })();
 (function(){
