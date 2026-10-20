@@ -30,13 +30,36 @@ in particular — the page asks for an enquiry rather than stating a number.
 - Neue Kabel Bold (Adobe Fonts) is no longer used or loaded. The page is set in
   DM Mono throughout.
 
+## RSVPs
+
+The Events tab takes RSVPs, ported from the Volta site.
+
+- `events.json` lists the events: `slug`, `title`, `date` (`YYYY-MM-DD`, or
+  `null` for "Dates TBA", which collects interest and promises an email when
+  dates are set), `time`, `rsvp` (on/off) and an optional `cap`. The
+  matching `<li>` in the Events list carries the slug as `data-event`. Don't
+  rename a slug once people have RSVP'd; it's the key their RSVPs live under.
+- The form posts to `functions/api/rsvp.js`, which checks the event against
+  `events.json`, stores the RSVP in the `RSVPS` KV namespace
+  (`ace-studio-rsvps`, bound on Production and Preview) and emails a
+  confirmation through Resend from events@thisisacestudio.com, Reply-To
+  info@. A past date closes RSVPs on its own.
+- Share links: `thisisacestudio.com/rsvp/<slug>` (see `_redirects`) opens the
+  Events tab on that event with the form showing.
+- Guest list: `thisisacestudio.com/rsvps`, behind the `RSVP_PORTAL_PASSWORD`
+  secret (any username). The password is in the Mac's Keychain as
+  "Ace Studio RSVP portal". `/rsvps?format=csv` downloads everything. Past
+  events fold into an Archived section; nothing is deleted.
+- Preview deployments share the same KV namespace, so a test RSVP on a
+  preview lands on the real list.
+
 ## Build
 
 There isn't one. `index.html` is the whole page: DM Mono is embedded as a data
 URI, the logo marks are inline SVG, and photography and flyers live in
 `images/` as ordinary files (flyers have a 1600px and a 3000px version, picked
 automatically with `srcset`). No dependencies, no build step. No outside
-requests, apart from the enquiry form posting to `/api/enquiry`.
+requests, apart from the forms posting to `/api/enquiry` and `/api/rsvp`.
 
 When swapping a photo, export it around 2400px wide (flyers 3000px) and keep
 the same filename, or update the `<img>` tag including its `width`/`height`.

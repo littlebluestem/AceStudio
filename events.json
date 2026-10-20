@@ -1,0 +1,29 @@
+{
+  "_readme": "The Events tab's RSVP list. One entry per event; `slug` is permanent once people have RSVP'd (it's the key their RSVPs are stored under). See README.md > RSVPs.",
+  "events": [
+    {
+      "slug": "film-photography-workshop",
+      "title": "Film Photography Workshop",
+      "date": null,
+      "time": "",
+      "rsvp": true,
+      "cap": null
+    },
+    {
+      "slug": "photo-walk",
+      "title": "Photo Walk",
+      "date": null,
+      "time": "",
+      "rsvp": true,
+      "cap": null
+    },
+    {
+      "slug": "photo-lecture-raquel-natalicchio",
+      "title": "Photo Lecture Series: Raquel Natalicchio",
+      "date": "2026-10-29",
+      "time": "6:30 – 8:00 PM",
+      "rsvp": true,
+      "cap": null
+    }
+  ]
+}

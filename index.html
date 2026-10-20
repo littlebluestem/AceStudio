@@ -174,6 +174,10 @@ body{background:#FFF8EF;}
 .events-media{display:flex;flex-direction:column;gap:clamp(28px,4vw,48px);}
 .events-media img{display:block;width:100%;height:auto;border:1px solid var(--keyline);}
 .contact-hero[hidden]{display:none;}
+.rsvp-form[hidden]{display:none;}
+.rsvp-head{display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;border-top:1px solid var(--rule);padding-top:20px;}
+.rsvp-head .rsvp-label{color:var(--red-ink);letter-spacing:.16em;}
+.rsvp-head #r-when{color:var(--ink-3);}
 .contact-hero img{display:block;width:100%;height:auto;border:1px solid var(--keyline);}
 .events-view li{
   font-family:var(--mono);cursor:pointer;
@@ -265,7 +269,7 @@ footer{
     <div class="events-media" data-panel="events" hidden>
       <img data-flyer="0" alt="Film Photography Workshop flyer: class schedule and presented-by lockup for Ace Studio." src="images/flyer-film-photography-workshop.jpg" width="3000" height="3789" srcset="images/flyer-film-photography-workshop-1600.jpg 1600w, images/flyer-film-photography-workshop.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
       <img data-flyer="1" alt="Photo Walk flyer: when, where, and what to bring details for the Ace Studio photo walk." src="images/flyer-photo-walk.jpg" width="3000" height="3789" srcset="images/flyer-photo-walk-1600.jpg 1600w, images/flyer-photo-walk.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
-      <img data-flyer="2" alt="Photo Lecture Series flyer: lecture schedule placeholders for topic, speaker, and date." src="images/flyer-photo-lecture-series.jpg" width="3000" height="3789" srcset="images/flyer-photo-lecture-series-1600.jpg 1600w, images/flyer-photo-lecture-series.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
+      <img data-flyer="2" alt="Photo Lecture Series flyer: Lecture 1 with photographer Raquel Natalicchio, Thursday October 29, 6:30 to 8:00 PM." src="images/flyer-photo-lecture-series.jpg" width="3000" height="3789" srcset="images/flyer-photo-lecture-series-1600.jpg 1600w, images/flyer-photo-lecture-series.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
     </div>
     <div class="contact-hero" data-panel="contact" hidden><img alt="A cream push-button desk phone and a wood-grain answering machine on a yellow cabinet in warm sunlight." src="images/contact-phone.jpg" width="2400" height="1600" loading="lazy" decoding="async"></div>
   </div>
@@ -285,10 +289,23 @@ footer{
       </ul>
       </div>
       <ul class="events-view" data-panel="events" hidden>
-        <li data-flyer="0" class="active">Film Photography Workshop</li>
-        <li data-flyer="1">Photo Walk</li>
-        <li data-flyer="2">Photo Lecture Night</li>
+        <li data-flyer="0" data-event="film-photography-workshop" class="active">Film Photography Workshop</li>
+        <li data-flyer="1" data-event="photo-walk">Photo Walk</li>
+        <li data-flyer="2" data-event="photo-lecture-raquel-natalicchio">Photo Lecture Night</li>
       </ul>
+      <div data-panel="events" hidden>
+      <form class="form rsvp-form" id="rsvp-form" hidden style="margin-top:clamp(20px,3vw,32px)">
+        <div class="rsvp-head full"><span class="rsvp-label">RSVP</span><span id="r-title"></span><span id="r-when"></span></div>
+        <div class="field"><label for="r-name">Name</label><input id="r-name" type="text" required autocomplete="name" placeholder="Your name"></div>
+        <div class="field"><label for="r-email">Email</label><input id="r-email" type="email" required autocomplete="email" placeholder="you@example.com"></div>
+        <div class="field full"><label for="r-note">Anything we should know</label><textarea id="r-note" maxlength="400" placeholder="Optional"></textarea></div>
+        <div class="actions">
+          <div style="position:absolute;left:-9999px" aria-hidden="true"><label for="r-website">Website</label><input id="r-website" type="text" tabindex="-1" autocomplete="off"></div>
+          <button class="submit" type="submit">RSVP</button>
+          <small id="r-status" role="status" aria-live="polite">We&#8217;ll email you a confirmation</small>
+        </div>
+      </form>
+      </div>
       <div data-panel="contact" hidden>
       <p class="lede">Whether it&#8217;s a shoot, a screening, or twelve people and a projector &#8212; tell us the shape of it and we&#8217;ll come back with dates and a price.</p>
       <form class="form" id="enquiry-form" style="margin-top:clamp(20px,3vw,32px)">
@@ -431,6 +448,90 @@ footer{
       button.disabled = false;
       button.textContent = 'Send enquiry';
       status.textContent = 'That didn\u2019t go through \u2014 please email us below';
+    });
+  });
+})();
+(function(){
+  // RSVP form under the Events list. Which events take RSVPs, and their
+  // dates, come from /events.json; the form follows whichever event is
+  // active. /rsvp/<slug> (see _redirects) lands here as ?rsvp=<slug>.
+  var form = document.getElementById('rsvp-form');
+  var list = document.querySelector('.events-view');
+  if (!form || !list || !window.fetch) return;
+  var events = {}, current = null;
+  var status = document.getElementById('r-status');
+  var button = form.querySelector('.submit');
+  var DEFAULT_STATUS = status.textContent;
+
+  function when(e){
+    if (!e.date) return 'Dates TBA \u2014 we\u2019ll email you when they\u2019re set';
+    var p = e.date.split('-');
+    var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
+    var s = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', timeZone:'UTC' });
+    return e.time ? s + ', ' + e.time : s;
+  }
+  function today(){
+    return new Intl.DateTimeFormat('en-CA', { timeZone:'America/Chicago' }).format(new Date());
+  }
+  function sync(){
+    var li = list.querySelector('li.active');
+    var e = li && events[li.dataset.event];
+    var open = e && e.rsvp && !(e.date && e.date < today());
+    form.hidden = !open;
+    if (!open || current === e.slug) return;
+    current = e.slug;
+    document.getElementById('r-title').textContent = e.title;
+    document.getElementById('r-when').textContent = when(e);
+    status.textContent = DEFAULT_STATUS;
+    button.disabled = false;
+    button.textContent = e.date ? 'RSVP' : 'Count me in';
+  }
+
+  fetch('/events.json').then(function(r){ return r.json(); }).then(function(data){
+    (data.events || []).forEach(function(e){ events[e.slug] = e; });
+    new MutationObserver(sync).observe(list, { subtree:true, attributes:true, attributeFilter:['class'] });
+    sync();
+    var want = new URLSearchParams(location.search).get('rsvp');
+    var li = want && list.querySelector('li[data-event="' + want.replace(/[^a-z0-9-]/g, '') + '"]');
+    if (li) {
+      var tab = document.querySelector('.cat-menu a[data-view="events"]');
+      if (tab) tab.click();
+      li.click();
+      // The flyers above the target are lazy, so they grow as the scroll
+      // passes them and it stops short. Load them, then scroll again.
+      var flyers = Array.prototype.slice.call(document.querySelectorAll('.events-media img[data-flyer]'));
+      var upto = flyers.filter(function(f){ return +f.dataset.flyer <= +li.dataset.flyer; });
+      upto.forEach(function(f){ f.loading = 'eager'; });
+      var loaded = upto.map(function(f){ return f.decode ? f.decode().catch(function(){}) : null; });
+      Promise.race([Promise.all(loaded), new Promise(function(r){ setTimeout(r, 2500); })]).then(function(){ li.click(); });
+    }
+  }).catch(function(){});
+
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    if (!current) return;
+    var val = function(id){ return (document.getElementById(id).value || '').trim(); };
+    button.disabled = true;
+    button.textContent = 'Sending\u2026';
+    fetch('/api/rsvp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: current, name: val('r-name'), email: val('r-email'),
+        note: val('r-note'), website: val('r-website')
+      })
+    }).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(body){
+        if (!res.ok) throw new Error(res.status === 503 ? '' : (body.error || ''));
+      });
+    }).then(function(){
+      form.reset();
+      button.textContent = 'You\u2019re on the list';
+      status.textContent = 'Check your inbox for a confirmation';
+    }).catch(function(err){
+      button.disabled = false;
+      button.textContent = events[current] && events[current].date ? 'RSVP' : 'Count me in';
+      status.textContent = err.message || 'That didn\u2019t go through \u2014 please email info@thisisacestudio.com';
     });
   });
 })();
