@@ -1,3 +1,5 @@
 # Short RSVP links for flyers and Instagram: /rsvp/<event slug> opens the
 # Events tab on that event with its RSVP form. Slugs are in events.json.
+# Short link for the current lecture; repoint it when the next one is set.
+/lecture /?rsvp=photo-lecture-raquel-natalicchio 302
 /rsvp/:slug /?rsvp=:slug 302
