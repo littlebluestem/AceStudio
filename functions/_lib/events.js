@@ -34,6 +34,8 @@ export function formatDate(event) {
   }).format(new Date(Date.UTC(y, m - 1, d)));
 }
 
+// `when` overrides the date line for a multi-day event, e.g. a three-week class.
 export function whenLine(event) {
+  if (event.when) return [event.when, event.time].filter(Boolean).join(", ");
   return [formatDate(event), event.time].filter(Boolean).join(", ");
 }
