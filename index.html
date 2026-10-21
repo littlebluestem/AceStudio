@@ -515,14 +515,13 @@ footer{
     if (li) {
       var tab = document.querySelector('.cat-menu a[data-view="events"]');
       if (tab) tab.click();
-      li.click();
-      // The flyers above the target are lazy, so they grow as the scroll
-      // passes them and it stops short. Load them, then scroll again.
-      var flyers = Array.prototype.slice.call(document.querySelectorAll('.events-media img[data-flyer]'));
-      var upto = flyers.filter(function(f){ return +f.dataset.flyer <= +li.dataset.flyer; });
-      upto.forEach(function(f){ f.loading = 'eager'; });
-      var loaded = upto.map(function(f){ return f.decode ? f.decode().catch(function(){}) : null; });
-      Promise.race([Promise.all(loaded), new Promise(function(r){ setTimeout(r, 2500); })]).then(function(){ li.click(); });
+      // Jump straight to the flyer rather than smooth-scrolling: the page's
+      // smooth scroll can stop short or stall while the tab is loading.
+      var flyer = document.querySelector('.events-media img[data-flyer="' + li.dataset.flyer + '"]');
+      requestAnimationFrame(function(){
+        if (flyer) flyer.scrollIntoView({ behavior:'instant', block:'start' });
+        list.querySelectorAll('li').forEach(function(x){ x.classList.toggle('active', x === li); });
+      });
     }
   }).catch(function(){});
 
