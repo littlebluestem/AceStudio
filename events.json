@@ -15,7 +15,8 @@
       "date": null,
       "time": "",
       "rsvp": false,
-      "cap": null
+      "cap": null,
+      "newsletter": true
     },
     {
       "slug": "photo-lecture-raquel-natalicchio",

@@ -16,9 +16,15 @@ in particular — the page asks for an enquiry rather than stating a number.
 ## Still to resolve
 
 - Pricing. The deck gives none, so the site quotes none.
-- Newsletter. There is no signup yet, so the footer has no newsletter link.
-  The footer is just the submark for now (the Instagram/email links were
-  removed); add a links row back under `.footer-wordmark` when it exists.
+- Newsletter. Buttondown, same setup as the Volta site. The footer form and
+  the Photo Walk's "sign up for the newsletter for updates" form (any event
+  with `"newsletter": true` in `events.json`) post to
+  `functions/api/subscribe.js`, which adds the address through Buttondown's
+  API; Buttondown sends its own confirm-your-subscription email. Needs
+  `BUTTONDOWN_API_KEY` (the Ace Studio newsletter's key, Buttondown >
+  Settings > API) as an encrypted variable on the Pages project, Production
+  and Preview, then a redeploy. Without it, signups say they didn't go
+  through.
 - Enquiry form. Posts to `functions/api/enquiry.js` (a Cloudflare Pages
   Function), which emails it to info@thisisacestudio.com through Resend with
   the visitor as Reply-To. Needs `RESEND_API_KEY` set as an encrypted variable

@@ -174,7 +174,7 @@ body{background:#FFF8EF;}
 .events-media{display:flex;flex-direction:column;gap:clamp(28px,4vw,48px);}
 .events-media img{display:block;width:100%;height:auto;border:1px solid var(--keyline);}
 .contact-hero[hidden]{display:none;}
-.rsvp-form[hidden]{display:none;}
+.entry-info .form[hidden]{display:none;}
 .rsvp-head{font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-ink);border-top:1px solid var(--rule);padding-top:20px;}
 .contact-hero img{display:block;width:100%;height:auto;border:1px solid var(--keyline);}
 .events-view li{
@@ -229,6 +229,15 @@ footer{
   text-align:center;
 }
 .footer-wordmark img{display:block;width:138px;height:auto;margin:0 auto;}
+.footer-news{margin:clamp(28px,4vw,40px) auto 0;max-width:360px;display:flex;flex-direction:column;gap:12px;font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;}
+.footer-news label{color:var(--ink-3);}
+.footer-news-row{display:flex;border-bottom:1px solid var(--rule);}
+.footer-news-row:focus-within{border-bottom-color:var(--red);}
+.footer-news input{flex:1;min-width:0;font:inherit;text-transform:none;letter-spacing:0;color:var(--ink);background:transparent;border:0;padding:10px 0;}
+.footer-news input::placeholder{color:var(--ink-3);}
+.footer-news input:focus{outline:none;}
+.footer-news button{font:inherit;color:var(--red-ink);background:none;border:0;padding:10px 0 10px 16px;cursor:pointer;}
+.footer-news small{font-size:14px;color:var(--ink-3);min-height:1.6em;}
 /* desktop: center the footer under the image column, not the full page */
 @media(min-width:861px){
   footer > *{margin-left:var(--foot-x,0);width:var(--foot-w,auto);}
@@ -299,7 +308,16 @@ footer{
         <div class="actions">
           <div style="position:absolute;left:-9999px" aria-hidden="true"><label for="r-website">Website</label><input id="r-website" type="text" tabindex="-1" autocomplete="off"></div>
           <button class="submit" type="submit">RSVP</button>
-          <small id="r-status" role="status" aria-live="polite">We&#8217;ll email you a confirmation</small>
+          <small id="r-status" role="status" aria-live="polite"></small>
+        </div>
+      </form>
+      <form class="form rsvp-form news-form" id="walk-news" hidden style="margin-top:clamp(20px,3vw,32px)">
+        <div class="rsvp-head full">Sign up for the newsletter for updates</div>
+        <div class="field"><label for="w-email">Email</label><input id="w-email" type="email" required autocomplete="email" placeholder="you@example.com"></div>
+        <div class="actions">
+          <div style="position:absolute;left:-9999px" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+          <button class="submit" type="submit">Subscribe</button>
+          <small role="status" aria-live="polite"></small>
         </div>
       </form>
       </div>
@@ -336,6 +354,15 @@ footer{
 </header>
 <footer>
   <div class="footer-wordmark"><img alt="Ace Studio logo" src="images/ace-submark.png" width="420" height="304" loading="lazy" decoding="async"></div>
+  <div class="footer-news-wrap"><form class="news-form footer-news">
+    <label for="n-email">Sign up for the newsletter</label>
+    <div class="footer-news-row">
+      <input id="n-email" type="email" required autocomplete="email" placeholder="Email">
+      <button type="submit">Subscribe</button>
+    </div>
+    <div style="position:absolute;left:-9999px" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+    <small role="status" aria-live="polite"></small>
+  </form></div>
 </footer>
 
 <script>
@@ -450,7 +477,8 @@ footer{
 })();
 (function(){
   // RSVP form under the Events list, shown for whichever event is active
-  // when /events.json has RSVPs on for it. The flyer and the confirmation
+  // when /events.json has RSVPs on for it (or the newsletter form, for an
+  // event marked `newsletter`). The flyer and the confirmation
   // email carry the date and time, so the form is just name and email.
   // /rsvp/<slug> (see _redirects) lands here as ?rsvp=<slug>.
   var form = document.getElementById('rsvp-form');
@@ -459,7 +487,6 @@ footer{
   var events = {}, current = null;
   var status = document.getElementById('r-status');
   var button = form.querySelector('.submit');
-  var DEFAULT_STATUS = status.textContent;
 
   function today(){
     return new Intl.DateTimeFormat('en-CA', { timeZone:'America/Chicago' }).format(new Date());
@@ -469,10 +496,12 @@ footer{
     var e = li && events[li.dataset.event];
     var open = e && e.rsvp && !(e.date && e.date < today());
     form.hidden = !open;
+    var news = document.getElementById('walk-news');
+    if (news) news.hidden = !(e && e.newsletter);
     if (!open || current === e.slug) return;
     current = e.slug;
     document.getElementById('r-title').textContent = 'RSVP for ' + (e.label || e.title);
-    status.textContent = DEFAULT_STATUS;
+    status.textContent = '';
     button.disabled = false;
     button.textContent = 'RSVP';
   }
@@ -522,6 +551,39 @@ footer{
       button.disabled = false;
       button.textContent = 'RSVP';
       status.textContent = err.message || 'That didn\u2019t go through \u2014 please email info@thisisacestudio.com';
+    });
+  });
+})();
+(function(){
+  // Newsletter signups (footer, and the Photo Walk's "for updates" form) go
+  // to /api/subscribe, which adds the address to Buttondown. Buttondown
+  // sends its own confirm-your-subscription email.
+  Array.prototype.slice.call(document.querySelectorAll('form.news-form')).forEach(function(form){
+    var input = form.querySelector('input[type="email"]');
+    var button = form.querySelector('button');
+    var status = form.querySelector('small[role="status"]');
+    var label = button.textContent;
+    form.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      if (!window.fetch) return;
+      button.disabled = true;
+      fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: input.value.trim(), website: form.querySelector('[name="website"]').value })
+      }).then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(body){
+          if (!res.ok) throw new Error(res.status === 503 ? '' : (body.error || ''));
+        });
+      }).then(function(){
+        input.value = '';
+        status.textContent = 'Almost there \u2014 check your inbox to confirm';
+      }).catch(function(err){
+        status.textContent = err.message || 'That didn\u2019t go through \u2014 please try again later';
+      }).then(function(){
+        button.disabled = false;
+        button.textContent = label;
+      });
     });
   });
 })();
