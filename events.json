@@ -6,7 +6,7 @@
       "title": "Film Photography Workshop",
       "date": null,
       "time": "",
-      "rsvp": true,
+      "rsvp": false,
       "cap": null
     },
     {
@@ -14,7 +14,7 @@
       "title": "Photo Walk",
       "date": null,
       "time": "",
-      "rsvp": true,
+      "rsvp": false,
       "cap": null
     },
     {
@@ -23,7 +23,8 @@
       "date": "2026-10-29",
       "time": "6:30 – 8:00 PM",
       "rsvp": true,
-      "cap": null
+      "cap": null,
+      "label": "Photo Lecture"
     }
   ]
 }

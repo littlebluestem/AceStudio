@@ -34,9 +34,11 @@ in particular — the page asks for an enquiry rather than stating a number.
 
 The Events tab takes RSVPs, ported from the Volta site.
 
-- `events.json` lists the events: `slug`, `title`, `date` (`YYYY-MM-DD`, or
-  `null` for "Dates TBA", which collects interest and promises an email when
-  dates are set), `time`, `rsvp` (on/off) and an optional `cap`. The
+- `events.json` lists the events: `slug`, `title` (used in the email),
+  `label` (the form reads "RSVP for <label>"), `date` (`YYYY-MM-DD`, or
+  `null` for "Dates TBA"), `time`, `rsvp` (on/off) and an optional `cap`.
+  The form is just name and email; the email carries the date, time and
+  address. The
   matching `<li>` in the Events list carries the slug as `data-event`. Don't
   rename a slug once people have RSVP'd; it's the key their RSVPs live under.
 - The form posts to `functions/api/rsvp.js`, which checks the event against

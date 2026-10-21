@@ -175,9 +175,7 @@ body{background:#FFF8EF;}
 .events-media img{display:block;width:100%;height:auto;border:1px solid var(--keyline);}
 .contact-hero[hidden]{display:none;}
 .rsvp-form[hidden]{display:none;}
-.rsvp-head{display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;border-top:1px solid var(--rule);padding-top:20px;}
-.rsvp-head .rsvp-label{color:var(--red-ink);letter-spacing:.16em;}
-.rsvp-head #r-when{color:var(--ink-3);}
+.rsvp-head{font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-ink);border-top:1px solid var(--rule);padding-top:20px;}
 .contact-hero img{display:block;width:100%;height:auto;border:1px solid var(--keyline);}
 .events-view li{
   font-family:var(--mono);cursor:pointer;
@@ -295,10 +293,9 @@ footer{
       </ul>
       <div data-panel="events" hidden>
       <form class="form rsvp-form" id="rsvp-form" hidden style="margin-top:clamp(20px,3vw,32px)">
-        <div class="rsvp-head full"><span class="rsvp-label">RSVP</span><span id="r-title"></span><span id="r-when"></span></div>
+        <div class="rsvp-head full" id="r-title">RSVP</div>
         <div class="field"><label for="r-name">Name</label><input id="r-name" type="text" required autocomplete="name" placeholder="Your name"></div>
         <div class="field"><label for="r-email">Email</label><input id="r-email" type="email" required autocomplete="email" placeholder="you@example.com"></div>
-        <div class="field full"><label for="r-note">Anything we should know</label><textarea id="r-note" maxlength="400" placeholder="Optional"></textarea></div>
         <div class="actions">
           <div style="position:absolute;left:-9999px" aria-hidden="true"><label for="r-website">Website</label><input id="r-website" type="text" tabindex="-1" autocomplete="off"></div>
           <button class="submit" type="submit">RSVP</button>
@@ -452,9 +449,10 @@ footer{
   });
 })();
 (function(){
-  // RSVP form under the Events list. Which events take RSVPs, and their
-  // dates, come from /events.json; the form follows whichever event is
-  // active. /rsvp/<slug> (see _redirects) lands here as ?rsvp=<slug>.
+  // RSVP form under the Events list, shown for whichever event is active
+  // when /events.json has RSVPs on for it. The flyer and the confirmation
+  // email carry the date and time, so the form is just name and email.
+  // /rsvp/<slug> (see _redirects) lands here as ?rsvp=<slug>.
   var form = document.getElementById('rsvp-form');
   var list = document.querySelector('.events-view');
   if (!form || !list || !window.fetch) return;
@@ -463,13 +461,6 @@ footer{
   var button = form.querySelector('.submit');
   var DEFAULT_STATUS = status.textContent;
 
-  function when(e){
-    if (!e.date) return 'Dates TBA \u2014 we\u2019ll email you when they\u2019re set';
-    var p = e.date.split('-');
-    var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
-    var s = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', timeZone:'UTC' });
-    return e.time ? s + ', ' + e.time : s;
-  }
   function today(){
     return new Intl.DateTimeFormat('en-CA', { timeZone:'America/Chicago' }).format(new Date());
   }
@@ -480,11 +471,10 @@ footer{
     form.hidden = !open;
     if (!open || current === e.slug) return;
     current = e.slug;
-    document.getElementById('r-title').textContent = e.title;
-    document.getElementById('r-when').textContent = when(e);
+    document.getElementById('r-title').textContent = 'RSVP for ' + (e.label || e.title);
     status.textContent = DEFAULT_STATUS;
     button.disabled = false;
-    button.textContent = e.date ? 'RSVP' : 'Count me in';
+    button.textContent = 'RSVP';
   }
 
   fetch('/events.json').then(function(r){ return r.json(); }).then(function(data){
@@ -518,7 +508,7 @@ footer{
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         event: current, name: val('r-name'), email: val('r-email'),
-        note: val('r-note'), website: val('r-website')
+        website: val('r-website')
       })
     }).then(function(res){
       return res.json().catch(function(){ return {}; }).then(function(body){
@@ -530,7 +520,7 @@ footer{
       status.textContent = 'Check your inbox for a confirmation';
     }).catch(function(err){
       button.disabled = false;
-      button.textContent = events[current] && events[current].date ? 'RSVP' : 'Count me in';
+      button.textContent = 'RSVP';
       status.textContent = err.message || 'That didn\u2019t go through \u2014 please email info@thisisacestudio.com';
     });
   });
