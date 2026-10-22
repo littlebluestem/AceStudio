@@ -23,7 +23,7 @@ export function escapeHtml(str) {
     .replace(/'/g, "&#39;");
 }
 
-export async function sendRsvpConfirmation({ name, email, title, when, dated }, env) {
+export async function sendRsvpConfirmation({ name, email, title, when, dated, attachment }, env) {
   if (!env.RESEND_API_KEY) {
     console.log("no RESEND_API_KEY bound — RSVP confirmation not sent to", email);
     return false;
@@ -53,6 +53,8 @@ ${lines.map((l, i) => `<p style="margin:0 0 1.2em">${i === 0 ? `You're on the li
         subject: `You're on the list — ${title}`,
         text,
         html,
+        // Resend fetches the file from the site itself.
+        ...(attachment ? { attachments: [{ path: attachment, filename: attachment.split("/").pop() }] } : {}),
       }),
     });
     if (!res.ok) {

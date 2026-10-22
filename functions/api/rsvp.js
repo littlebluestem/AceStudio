@@ -88,7 +88,11 @@ export async function onRequestPost({ request, env, waitUntil }) {
   // Confirm every submission, re-RSVPs included, without making the visitor
   // wait on the mail API.
   const sending = sendRsvpConfirmation(
-    { name, email, title: event.title, when: whenLine(event), dated: Boolean(event.date) },
+    {
+      name, email, title: event.title, when: whenLine(event), dated: Boolean(event.date),
+      // `attachment` in events.json: a file on this site to attach, e.g. a details flyer.
+      attachment: event.attachment ? new URL(event.attachment, request.url).href : null,
+    },
     env
   );
   if (typeof waitUntil === "function") waitUntil(sending);

@@ -43,7 +43,8 @@ The Events tab takes RSVPs, ported from the Volta site.
 - `events.json` lists the events: `slug`, `title` (used in the email),
   `label` (the form reads "RSVP for <label>"), `date` (`YYYY-MM-DD`, or
   `null` for "Dates TBA"; RSVPs close after it), `when` (optional, replaces
-  the date in the email for a multi-day event), `time`, `rsvp` (on/off) and an optional `cap`.
+  the date in the email for a multi-day event), `time`, `rsvp` (on/off), an optional `cap`, and an optional `attachment`
+  (a file on this site, e.g. `/files/...pdf`, attached to the confirmation email).
   The form is just name and email; the email carries the date, time and
   address. The
   matching `<li>` in the Events list carries the slug as `data-event`. Don't
