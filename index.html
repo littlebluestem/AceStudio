@@ -174,7 +174,8 @@ body{background:#FFF8EF;}
 .events-media{display:flex;flex-direction:column;gap:clamp(28px,4vw,48px);}
 .events-media img{display:block;width:100%;height:auto;border:1px solid var(--keyline);}
 .contact-hero[hidden]{display:none;}
-.entry-info .form[hidden]{display:none;}
+.flyer-block .form{margin-top:clamp(20px,3vw,32px);max-width:460px;}
+:is(.entry-info,.events-media) .form[hidden]{display:none;}
 .rsvp-head{font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-ink);border-top:1px solid var(--rule);padding-top:20px;}
 .contact-hero img{display:block;width:100%;height:auto;border:1px solid var(--keyline);}
 .events-view li{
@@ -195,34 +196,34 @@ body{background:#FFF8EF;}
   .split-entry .entry-media{padding-bottom:0;margin-bottom:clamp(28px,6vw,48px);}
   /* phones: lift the tab menu out of the info column to the top of the page */
   .split-entry .entry-info{display:contents;}
-  .entry-info .cat-menu{order:-1;padding:var(--pad) 0 12px;margin-bottom:0;}
+  .entry-info .cat-menu{order:-1;align-self:stretch;padding:var(--pad) 0 12px;margin-bottom:0;}
   .events-media img{scroll-margin-top:56px;}
 }
 
 /* ---- enquiry form, pulled from the original site design ---- */
-.entry-info .form{display:grid;grid-template-columns:1fr;gap:20px;}
-.entry-info .form .full{grid-column:1/-1;}
-.entry-info .field{display:flex;flex-direction:column;gap:9px;}
-.entry-info .field label{font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
-.entry-info .field input,
-.entry-info .field textarea,
-.entry-info .field select{
+:is(.entry-info,.events-media) .form{display:grid;grid-template-columns:1fr;gap:20px;}
+:is(.entry-info,.events-media) .form .full{grid-column:1/-1;}
+:is(.entry-info,.events-media) .field{display:flex;flex-direction:column;gap:9px;}
+:is(.entry-info,.events-media) .field label{font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
+:is(.entry-info,.events-media) .field input,
+:is(.entry-info,.events-media) .field textarea,
+:is(.entry-info,.events-media) .field select{
   font-family:var(--display);font-size:14px;color:var(--ink);background:transparent;
   border:0;border-bottom:1px solid transparent;padding:10px 0;border-radius:0;
 }
-.entry-info .field select option{color:var(--ink);background:var(--ground);}
-.entry-info .field textarea{resize:none;min-height:80px;}
-.entry-info .field input::placeholder,
-.entry-info .field textarea::placeholder{color:var(--ink-3);}
-.entry-info .field input:focus,
-.entry-info .field textarea:focus,
-.entry-info .field select:focus{outline:none;border-bottom-color:var(--red);}
-.entry-info .form .actions{grid-column:1/-1;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;flex-direction:column;margin-top:6px;}
-.entry-info .submit{
+:is(.entry-info,.events-media) .field select option{color:var(--ink);background:var(--ground);}
+:is(.entry-info,.events-media) .field textarea{resize:none;min-height:80px;}
+:is(.entry-info,.events-media) .field input::placeholder,
+:is(.entry-info,.events-media) .field textarea::placeholder{color:var(--ink-3);}
+:is(.entry-info,.events-media) .field input:focus,
+:is(.entry-info,.events-media) .field textarea:focus,
+:is(.entry-info,.events-media) .field select:focus{outline:none;border-bottom-color:var(--red);}
+:is(.entry-info,.events-media) .form .actions{grid-column:1/-1;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;flex-direction:column;margin-top:6px;}
+:is(.entry-info,.events-media) .submit{
   font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;
   background:var(--red);color:var(--on-red);border:0;padding:14px 26px;cursor:pointer;
 }
-.entry-info .form small{font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
+:is(.entry-info,.events-media) .form small{font-family:var(--mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
 
 /* ---- footer ---- */
 .entry-info > [data-panel] > :last-child{margin-bottom:0;}
@@ -276,9 +277,36 @@ footer{
       </div>
     </div>
     <div class="events-media" data-panel="events" hidden>
-      <img data-flyer="0" alt="Photo Lecture Series flyer: photographer Raquel Natalicchio, Thursday October 29, 6:30 to 8:00 PM." src="images/flyer-photo-lecture-series.jpg" width="3000" height="3789" srcset="images/flyer-photo-lecture-series-1600.jpg 1600w, images/flyer-photo-lecture-series.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
-      <img data-flyer="1" alt="Film Photography Workshop flyer: three classes on Sundays, January 10, 17 and 24, presented by Ace Studio." src="images/flyer-film-photography-workshop.jpg" width="3000" height="3789" srcset="images/flyer-film-photography-workshop-1600.jpg 1600w, images/flyer-film-photography-workshop.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
-      <img data-flyer="2" alt="Photo Walk flyer: when, where, and what to bring details for the Ace Studio photo walk." src="images/flyer-photo-walk.jpg" width="3000" height="3789" srcset="images/flyer-photo-walk-1600.jpg 1600w, images/flyer-photo-walk.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
+      <div class="flyer-block" data-event="photo-lecture-raquel-natalicchio">
+        <img data-flyer="0" alt="Photo Lecture Series flyer: photographer Raquel Natalicchio, Thursday October 29, 6:30 to 8:00 PM." src="images/flyer-photo-lecture-series.jpg" width="3000" height="3789" srcset="images/flyer-photo-lecture-series-1600.jpg 1600w, images/flyer-photo-lecture-series.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
+      </div>
+      <div class="flyer-block" data-event="film-photography-workshop">
+        <img data-flyer="1" alt="Film Photography Workshop flyer: three classes on Sundays, January 10, 17 and 24, presented by Ace Studio." src="images/flyer-film-photography-workshop.jpg" width="3000" height="3789" srcset="images/flyer-film-photography-workshop-1600.jpg 1600w, images/flyer-film-photography-workshop.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
+      </div>
+      <div class="flyer-block" data-event="photo-walk">
+        <img data-flyer="2" alt="Photo Walk flyer: when, where, and what to bring details for the Ace Studio photo walk." src="images/flyer-photo-walk.jpg" width="3000" height="3789" srcset="images/flyer-photo-walk-1600.jpg 1600w, images/flyer-photo-walk.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
+        <form class="form rsvp-form news-form" id="walk-news">
+          <div class="rsvp-head full">Sign up for the newsletter for updates</div>
+          <div class="field"><label for="w-email">Email</label><input id="w-email" type="email" required autocomplete="email" placeholder="you@example.com"></div>
+          <div class="actions">
+            <div style="position:absolute;left:-9999px" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+            <button class="submit" type="submit">Subscribe</button>
+            <small role="status" aria-live="polite"></small>
+          </div>
+        </form>
+      </div>
+      <template id="rsvp-template">
+        <form class="form rsvp-form">
+          <div class="rsvp-head full">RSVP</div>
+          <div class="field"><label data-for="name">Name</label><input name="name" type="text" required autocomplete="name" placeholder="Your name"></div>
+          <div class="field"><label data-for="email">Email</label><input name="email" type="email" required autocomplete="email" placeholder="you@example.com"></div>
+          <div class="actions">
+            <div style="position:absolute;left:-9999px" aria-hidden="true"><label data-for="website">Website</label><input name="website" type="text" tabindex="-1" autocomplete="off"></div>
+            <button class="submit" type="submit">RSVP</button>
+            <small role="status" aria-live="polite"></small>
+          </div>
+        </form>
+      </template>
     </div>
     <div class="contact-hero" data-panel="contact" hidden><img alt="A cream push-button desk phone and a wood-grain answering machine on a yellow cabinet in warm sunlight." src="images/contact-phone.jpg" width="2400" height="1600" loading="lazy" decoding="async"></div>
   </div>
@@ -302,27 +330,6 @@ footer{
         <li data-flyer="1" data-event="film-photography-workshop">Film Photography Workshop</li>
         <li data-flyer="2" data-event="photo-walk">Photo Walk</li>
       </ul>
-      <div data-panel="events" hidden>
-      <form class="form rsvp-form" id="rsvp-form" hidden style="margin-top:clamp(20px,3vw,32px)">
-        <div class="rsvp-head full" id="r-title">RSVP</div>
-        <div class="field"><label for="r-name">Name</label><input id="r-name" type="text" required autocomplete="name" placeholder="Your name"></div>
-        <div class="field"><label for="r-email">Email</label><input id="r-email" type="email" required autocomplete="email" placeholder="you@example.com"></div>
-        <div class="actions">
-          <div style="position:absolute;left:-9999px" aria-hidden="true"><label for="r-website">Website</label><input id="r-website" type="text" tabindex="-1" autocomplete="off"></div>
-          <button class="submit" type="submit">RSVP</button>
-          <small id="r-status" role="status" aria-live="polite"></small>
-        </div>
-      </form>
-      <form class="form rsvp-form news-form" id="walk-news" hidden style="margin-top:clamp(20px,3vw,32px)">
-        <div class="rsvp-head full">Sign up for the newsletter for updates</div>
-        <div class="field"><label for="w-email">Email</label><input id="w-email" type="email" required autocomplete="email" placeholder="you@example.com"></div>
-        <div class="actions">
-          <div style="position:absolute;left:-9999px" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
-          <button class="submit" type="submit">Subscribe</button>
-          <small role="status" aria-live="polite"></small>
-        </div>
-      </form>
-      </div>
       <div data-panel="contact" hidden>
       <p class="lede">Whether it&#8217;s a shoot, a screening, or twelve people and a projector &#8212; tell us the shape of it and we&#8217;ll come back with dates and a price.</p>
       <form class="form" id="enquiry-form" style="margin-top:clamp(20px,3vw,32px)">
@@ -480,40 +487,65 @@ footer{
   });
 })();
 (function(){
-  // RSVP form under the Events list, shown for whichever event is active
-  // when /events.json has RSVPs on for it (or the newsletter form, for an
-  // event marked `newsletter`). The flyer and the confirmation
-  // email carry the date and time, so the form is just name and email.
+  // An RSVP form under each event's flyer, for the events /events.json has
+  // RSVPs on for (the Photo Walk's newsletter form sits under its flyer in
+  // the markup). The flyer and the confirmation email carry the date and
+  // time, so the form is just name and email.
   // /rsvp/<slug> (see _redirects) lands here as ?rsvp=<slug>.
-  var form = document.getElementById('rsvp-form');
+  var tpl = document.getElementById('rsvp-template');
   var list = document.querySelector('.events-view');
-  if (!form || !list || !window.fetch) return;
-  var events = {}, current = null;
-  var status = document.getElementById('r-status');
-  var button = form.querySelector('.submit');
+  if (!tpl || !list || !window.fetch) return;
 
   function today(){
     return new Intl.DateTimeFormat('en-CA', { timeZone:'America/Chicago' }).format(new Date());
   }
-  function sync(){
-    var li = list.querySelector('li.active');
-    var e = li && events[li.dataset.event];
-    var open = e && e.rsvp && !(e.date && e.date < today());
-    form.hidden = !open;
-    var news = document.getElementById('walk-news');
-    if (news) news.hidden = !(e && e.newsletter);
-    if (!open || current === e.slug) return;
-    current = e.slug;
-    document.getElementById('r-title').textContent = 'RSVP for ' + (e.label || e.title);
-    status.textContent = '';
-    button.disabled = false;
-    button.textContent = 'RSVP';
+
+  function addForm(e){
+    var block = document.querySelector('.flyer-block[data-event="' + e.slug + '"]');
+    if (!block) return;
+    var form = tpl.content.firstElementChild.cloneNode(true);
+    form.querySelector('.rsvp-head').textContent = 'RSVP for ' + (e.label || e.title);
+    ['name', 'email', 'website'].forEach(function(k){
+      var input = form.querySelector('[name="' + k + '"]');
+      input.id = 'r-' + k + '-' + e.slug;
+      form.querySelector('label[data-for="' + k + '"]').htmlFor = input.id;
+    });
+    var status = form.querySelector('small[role="status"]');
+    var button = form.querySelector('.submit');
+    var val = function(k){ return (form.querySelector('[name="' + k + '"]').value || '').trim(); };
+
+    form.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      button.disabled = true;
+      button.textContent = 'Sending\u2026';
+      fetch('/api/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: e.slug, name: val('name'), email: val('email'),
+          website: val('website')
+        })
+      }).then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(body){
+          if (!res.ok) throw new Error(res.status === 503 ? '' : (body.error || ''));
+        });
+      }).then(function(){
+        form.reset();
+        button.textContent = 'You\u2019re on the list';
+        status.textContent = 'Check your inbox for a confirmation';
+      }).catch(function(err){
+        button.disabled = false;
+        button.textContent = 'RSVP';
+        status.textContent = err.message || 'That didn\u2019t go through \u2014 please email info@thisisacestudio.com';
+      });
+    });
+    block.appendChild(form);
   }
 
   fetch('/events.json').then(function(r){ return r.json(); }).then(function(data){
-    (data.events || []).forEach(function(e){ events[e.slug] = e; });
-    new MutationObserver(sync).observe(list, { subtree:true, attributes:true, attributeFilter:['class'] });
-    sync();
+    (data.events || []).forEach(function(e){
+      if (e.rsvp && !(e.date && e.date < today())) addForm(e);
+    });
     var want = new URLSearchParams(location.search).get('rsvp');
     var li = want && list.querySelector('li[data-event="' + want.replace(/[^a-z0-9-]/g, '') + '"]');
     if (li) {
@@ -528,34 +560,6 @@ footer{
       });
     }
   }).catch(function(){});
-
-  form.addEventListener('submit', function(ev){
-    ev.preventDefault();
-    if (!current) return;
-    var val = function(id){ return (document.getElementById(id).value || '').trim(); };
-    button.disabled = true;
-    button.textContent = 'Sending\u2026';
-    fetch('/api/rsvp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event: current, name: val('r-name'), email: val('r-email'),
-        website: val('r-website')
-      })
-    }).then(function(res){
-      return res.json().catch(function(){ return {}; }).then(function(body){
-        if (!res.ok) throw new Error(res.status === 503 ? '' : (body.error || ''));
-      });
-    }).then(function(){
-      form.reset();
-      button.textContent = 'You\u2019re on the list';
-      status.textContent = 'Check your inbox for a confirmation';
-    }).catch(function(err){
-      button.disabled = false;
-      button.textContent = 'RSVP';
-      status.textContent = err.message || 'That didn\u2019t go through \u2014 please email info@thisisacestudio.com';
-    });
-  });
 })();
 (function(){
   // Newsletter signups (footer, and the Photo Walk's "for updates" form) go
