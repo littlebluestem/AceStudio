@@ -587,6 +587,23 @@ footer{
   });
 })();
 (function(){
+  // /newsletter (see _redirects) lands here as ?newsletter: scroll to the
+  // footer signup and focus it. The footer sits outside the tabs, so it's
+  // always there. Waits for load so the scroll isn't cut short.
+  var params = new URLSearchParams(location.search);
+  var input = document.getElementById('n-email');
+  if (!params.has('newsletter') || !input) return;
+  params.delete('newsletter');
+  var qs = params.toString();
+  history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+  function go(){
+    input.scrollIntoView({ behavior:'smooth', block:'center' });
+    input.focus({ preventScroll:true });
+  }
+  if (document.readyState === 'complete') go();
+  else window.addEventListener('load', go);
+})();
+(function(){
   var root = document.documentElement, hero = document.querySelector('header.hero'), footer = document.querySelector('footer');
   if (!hero || !footer) return;
   var media = hero.querySelector('.entry-media');
