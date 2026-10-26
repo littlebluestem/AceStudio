@@ -191,10 +191,12 @@ body{background:#FFF8EF;}
 .photo-index li{color:var(--ink-3);transition:color .2s,font-weight .2s;}
 .photo-index li.active{color:var(--red-ink);font-weight:700;}
 @media(max-width:860px){
-  .split-entry .wrap{flex-direction:column;gap:clamp(28px,6vw,48px);margin-bottom:0;}
-  .split-entry .entry-media{padding-bottom:0;}
-  .split-entry .entry-info{padding-top:0;position:static;max-height:none;overflow:visible;}
-  .entry-info .cat-menu{position:static;padding:0 0 12px;}
+  .split-entry .wrap{flex-direction:column;gap:0;margin-bottom:0;}
+  .split-entry .entry-media{padding-bottom:0;margin-bottom:clamp(28px,6vw,48px);}
+  /* phones: lift the tab menu out of the info column to the top of the page */
+  .split-entry .entry-info{display:contents;}
+  .entry-info .cat-menu{order:-1;padding:var(--pad) 0 12px;margin-bottom:0;}
+  .events-media img{scroll-margin-top:56px;}
 }
 
 /* ---- enquiry form, pulled from the original site design ---- */
@@ -410,6 +412,8 @@ footer{
       var target = link.dataset.view;
       links.forEach(function(l){ l.classList.toggle('active', l === link); });
       panels.forEach(function(p){ p.hidden = (p.dataset.panel !== target); });
+      // On phones the menu sits at the top, so start the new tab from there.
+      if (window.matchMedia('(max-width:860px)').matches) window.scrollTo({ top:0, behavior:'instant' });
     });
   });
 })();
