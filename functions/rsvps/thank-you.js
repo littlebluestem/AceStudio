@@ -7,9 +7,9 @@
  *
  *   GET                  recipient count, first names, preview, two buttons
  *   POST action=test     one copy to TEST_TO, not recorded
- *   POST action=all      one email per recipient via Resend's batch endpoint
- *                        (each person gets their own email), up to 100 per
- *                        call. Each sent address is recorded in KV as
+ *   POST action=all      one email per recipient, one Resend call each,
+ *                        paced for Resend's rate limit, each with an
+ *                        idempotency key. Each sent address is recorded in KV as
  *                        `thanks-sent:<slug>:<email>` and skipped next time,
  *                        so a double click or a retry can't double-send.
  *
@@ -161,24 +161,18 @@ export async function onRequestPost({ request, env }) {
     let ok = 0;
     let failed = 0;
     const errors = [];
-    for (let i = 0; i < pending.length; i += 100) {
-      const chunk = pending.slice(i, i + 100);
-      // Same recipients → same key, so Resend drops a repeat of this exact call.
-      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(chunk.map((r) => r.email).join(",")));
-      const key = `thanks-${EVENT}-` + [...new Uint8Array(digest)].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
+    // One call per person (Resend's batch endpoint can't carry attachments),
+    // paced under Resend's 2-requests-a-second limit.
+    for (const [i, r] of pending.entries()) {
       try {
-        const { data } = await resend(env, "/emails/batch", chunk.map((r) => message(env, r.email, r.name)), key);
-        await Promise.all(
-          chunk.map((r, j) =>
-            env.RSVPS.put(SENT_PREFIX + r.email, JSON.stringify({ id: data?.[j]?.id || null, at: new Date().toISOString() }))
-          )
-        );
-        ok += chunk.length;
+        const { id } = await resend(env, "/emails", message(env, r.email, r.name), `thanks-${EVENT}-${r.email}`);
+        await env.RSVPS.put(SENT_PREFIX + r.email, JSON.stringify({ id, at: new Date().toISOString() }));
+        ok++;
       } catch (err) {
-        failed += chunk.length;
-        errors.push(err.message);
+        failed++;
+        errors.push(`${r.name.split(/\s+/)[0] || r.email}: ${err.message}`);
       }
-      if (i + 100 < pending.length) await new Promise((r) => setTimeout(r, 1000));
+      if (i < pending.length - 1) await new Promise((res) => setTimeout(res, 600));
     }
     notice = `Sent ${ok}, failed ${failed}, skipped ${list.length - pending.length} already sent.` + (errors.length ? `\n${errors.join("\n")}` : "");
     sent = await alreadySent(env.RSVPS);
