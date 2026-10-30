@@ -2,7 +2,8 @@
  * /rsvps/thank-you — sends the post-lecture thank-you email
  * (_lib/thank-you-email.js, styled like the RSVP confirmation), to everyone who RSVP'd to Raquel's lecture.
  * Same password as /rsvps (_lib/auth.js); same Resend key, From and
- * Reply-To as the RSVP confirmations (_lib/mail.js).
+ * Reply-To as the RSVP confirmations (_lib/mail.js). Attaches a branded
+ * photo from the night (files/ace-photo-lecture-raquel-thank-you.jpg).
  *
  *   GET                  recipient count, first names, preview, two buttons
  *   POST action=test     one copy to TEST_TO, not recorded
@@ -26,6 +27,7 @@ const EVENT = "photo-lecture-raquel-natalicchio";
 const SUBJECT = "Thanks for coming out";
 const TEST_TO = "javifdz89@gmail.com";
 const SENT_PREFIX = `thanks-sent:${EVENT}:`;
+const PHOTO = "https://thisisacestudio.com/files/ace-photo-lecture-raquel-thank-you.jpg";
 
 const html = (body, status = 200) =>
   new Response(body, {
@@ -71,6 +73,8 @@ function message(env, to, name) {
     text,
     html,
     headers: { "List-Unsubscribe": `<mailto:${DEFAULT_REPLY_TO}?subject=Unsubscribe>` },
+    // Resend fetches the file from the site itself, like the RSVP confirmation's flyer.
+    attachments: [{ path: PHOTO, filename: PHOTO.split("/").pop() }],
   };
 }
 
