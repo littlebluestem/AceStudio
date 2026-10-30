@@ -1,6 +1,6 @@
 /**
- * /rsvps/thank-you — sends the post-lecture thank-you email
- * (_lib/thank-you-email.js) to everyone who RSVP'd to Raquel's lecture.
+ * /rsvps/thank-you — sends the post-lecture thank-you email, plain text
+ * only (_lib/thank-you-email.js), to everyone who RSVP'd to Raquel's lecture.
  * Same password as /rsvps (_lib/auth.js); same Resend key, From and
  * Reply-To as the RSVP confirmations (_lib/mail.js).
  *
@@ -20,7 +20,7 @@
 
 import { checkAuth, unauthorized } from "../_lib/auth.js";
 import { escapeHtml, DEFAULT_FROM, DEFAULT_REPLY_TO } from "../_lib/mail.js";
-import EMAIL_HTML from "../_lib/thank-you-email.js";
+import { text as EMAIL_TEXT } from "../_lib/thank-you-email.js";
 
 const EVENT = "photo-lecture-raquel-natalicchio";
 const SUBJECT = "Thanks for coming out";
@@ -67,7 +67,8 @@ function message(env, to) {
     reply_to: env.MAIL_TO || DEFAULT_REPLY_TO,
     to: [to],
     subject: SUBJECT,
-    html: EMAIL_HTML,
+    text: EMAIL_TEXT,
+    headers: { "List-Unsubscribe": `<mailto:${DEFAULT_REPLY_TO}?subject=Unsubscribe>` },
   };
 }
 
@@ -104,7 +105,7 @@ function page({ list, sent, notice }) {
   button{font:inherit;letter-spacing:.12em;text-transform:uppercase;padding:.7rem 1.2rem;border:0;cursor:pointer;background:#000022;color:#FFF8EF;}
   button.all{background:#8E1D1A;}
   button:disabled{opacity:.4;cursor:default;}
-  iframe{width:100%;height:80vh;border:1px solid #A9A29A;background:#fff;margin-top:1.5rem;}
+  pre{white-space:pre-wrap;border:1px solid #A9A29A;background:#fff;padding:1.2rem;margin-top:1.5rem;font:15px/1.5 Helvetica,Arial,sans-serif;}
 </style></head><body>
 <h1><span>Thank-you email · Raquel's lecture</span><a href="/rsvps">Guest list</a></h1>
 ${notice ? `<p class="notice">${escapeHtml(notice)}</p>` : ""}
@@ -114,7 +115,7 @@ ${notice ? `<p class="notice">${escapeHtml(notice)}</p>` : ""}
 <form method="post"><input type="hidden" name="action" value="test"><button>Send test to ${escapeHtml(TEST_TO)}</button></form>
 <form method="post" onsubmit="if(!confirm('Send the thank-you email to ${pending.length} people? Each gets their own email.'))return false;this.querySelector('button').disabled=true;">
 <input type="hidden" name="action" value="all"><button class="all"${pending.length ? "" : " disabled"}>Send to all ${pending.length} RSVPs</button></form>
-<iframe sandbox title="Email preview" srcdoc="${escapeHtml(EMAIL_HTML)}"></iframe>
+<pre>${escapeHtml(EMAIL_TEXT)}</pre>
 </body></html>`;
 }
 
