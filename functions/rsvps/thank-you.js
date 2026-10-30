@@ -1,6 +1,6 @@
 /**
- * /rsvps/thank-you — sends the post-lecture thank-you email, plain text
- * only (_lib/thank-you-email.js), to everyone who RSVP'd to Raquel's lecture.
+ * /rsvps/thank-you — sends the post-lecture thank-you email
+ * (_lib/thank-you-email.js, styled like the RSVP confirmation), to everyone who RSVP'd to Raquel's lecture.
  * Same password as /rsvps (_lib/auth.js); same Resend key, From and
  * Reply-To as the RSVP confirmations (_lib/mail.js).
  *
@@ -20,7 +20,7 @@
 
 import { checkAuth, unauthorized } from "../_lib/auth.js";
 import { escapeHtml, DEFAULT_FROM, DEFAULT_REPLY_TO } from "../_lib/mail.js";
-import { text as EMAIL_TEXT } from "../_lib/thank-you-email.js";
+import { thankYouEmail } from "../_lib/thank-you-email.js";
 
 const EVENT = "photo-lecture-raquel-natalicchio";
 const SUBJECT = "Thanks for coming out";
@@ -61,13 +61,15 @@ async function alreadySent(kv) {
   return new Set((await listAll(kv, SENT_PREFIX)).map((k) => k.name.slice(SENT_PREFIX.length)));
 }
 
-function message(env, to) {
+function message(env, to, name) {
+  const { text, html } = thankYouEmail(name);
   return {
     from: env.RSVP_FROM || DEFAULT_FROM,
     reply_to: env.MAIL_TO || DEFAULT_REPLY_TO,
     to: [to],
     subject: SUBJECT,
-    text: EMAIL_TEXT,
+    text,
+    html,
     headers: { "List-Unsubscribe": `<mailto:${DEFAULT_REPLY_TO}?subject=Unsubscribe>` },
   };
 }
@@ -105,7 +107,7 @@ function page({ list, sent, notice }) {
   button{font:inherit;letter-spacing:.12em;text-transform:uppercase;padding:.7rem 1.2rem;border:0;cursor:pointer;background:#000022;color:#FFF8EF;}
   button.all{background:#8E1D1A;}
   button:disabled{opacity:.4;cursor:default;}
-  pre{white-space:pre-wrap;border:1px solid #A9A29A;background:#fff;padding:1.2rem;margin-top:1.5rem;font:15px/1.5 Helvetica,Arial,sans-serif;}
+  iframe{width:100%;height:80vh;border:1px solid #A9A29A;background:#fff;margin-top:1.5rem;}
 </style></head><body>
 <h1><span>Thank-you email · Raquel's lecture</span><a href="/rsvps">Guest list</a></h1>
 ${notice ? `<p class="notice">${escapeHtml(notice)}</p>` : ""}
@@ -115,7 +117,7 @@ ${notice ? `<p class="notice">${escapeHtml(notice)}</p>` : ""}
 <form method="post"><input type="hidden" name="action" value="test"><button>Send test to ${escapeHtml(TEST_TO)}</button></form>
 <form method="post" onsubmit="if(!confirm('Send the thank-you email to ${pending.length} people? Each gets their own email.'))return false;this.querySelector('button').disabled=true;">
 <input type="hidden" name="action" value="all"><button class="all"${pending.length ? "" : " disabled"}>Send to all ${pending.length} RSVPs</button></form>
-<pre>${escapeHtml(EMAIL_TEXT)}</pre>
+<iframe sandbox title="Email preview" srcdoc="${escapeHtml(thankYouEmail(list[0]?.name).html)}"></iframe>
 </body></html>`;
 }
 
@@ -145,7 +147,7 @@ export async function onRequestPost({ request, env }) {
 
   if (action === "test") {
     try {
-      const { id } = await resend(env, "/emails", message(env, TEST_TO));
+      const { id } = await resend(env, "/emails", message(env, TEST_TO, "javi"));
       notice = `Test sent to ${TEST_TO}. Resend id: ${id}`;
     } catch (err) {
       notice = `Test failed — ${err.message}`;
@@ -161,7 +163,7 @@ export async function onRequestPost({ request, env }) {
       const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(chunk.map((r) => r.email).join(",")));
       const key = `thanks-${EVENT}-` + [...new Uint8Array(digest)].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
       try {
-        const { data } = await resend(env, "/emails/batch", chunk.map((r) => message(env, r.email)), key);
+        const { data } = await resend(env, "/emails/batch", chunk.map((r) => message(env, r.email, r.name)), key);
         await Promise.all(
           chunk.map((r, j) =>
             env.RSVPS.put(SENT_PREFIX + r.email, JSON.stringify({ id: data?.[j]?.id || null, at: new Date().toISOString() }))
