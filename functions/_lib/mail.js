@@ -10,8 +10,8 @@
  *   MAIL_TO        optional — the Reply-To, same default as the enquiry form
  */
 
-const DEFAULT_FROM = "Ace Studio <events@thisisacestudio.com>";
-const DEFAULT_REPLY_TO = "info@thisisacestudio.com";
+export const DEFAULT_FROM = "Ace Studio <events@thisisacestudio.com>";
+export const DEFAULT_REPLY_TO = "info@thisisacestudio.com";
 const ADDRESS = "603 W 11th St, Suite 100, Houston, TX 77008";
 
 export function escapeHtml(str) {
