@@ -277,8 +277,8 @@ footer{
       </div>
     </div>
     <div class="events-media" data-panel="events" hidden>
-      <div class="flyer-block" data-event="photo-lecture-raquel-natalicchio">
-        <img data-flyer="0" alt="Photo Lecture Series flyer: photographer Raquel Natalicchio, Thursday October 29, 6:30 to 8:00 PM." src="images/flyer-photo-lecture-series.jpg" width="3000" height="3789" srcset="images/flyer-photo-lecture-series-1600.jpg 1600w, images/flyer-photo-lecture-series.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
+      <div class="flyer-block" data-event="photo-lecture-joe-spinoza">
+        <img data-flyer="0" alt="Photo Lecture Series flyer: photographer Joe Spinoza, Thursday November 12, 6:30 to 8:00 PM." src="images/flyer-photo-lecture-joe-spinoza.jpg" width="3000" height="3789" srcset="images/flyer-photo-lecture-joe-spinoza-1600.jpg 1600w, images/flyer-photo-lecture-joe-spinoza.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
       </div>
       <div class="flyer-block" data-event="film-photography-workshop">
         <img data-flyer="1" alt="Film Photography Workshop flyer: three classes on Sundays, January 10, 17 and 24, presented by Ace Studio." src="images/flyer-film-photography-workshop.jpg" width="3000" height="3789" srcset="images/flyer-film-photography-workshop-1600.jpg 1600w, images/flyer-film-photography-workshop.jpg 3000w" sizes="(max-width:860px) 100vw, 75vw" loading="lazy" decoding="async">
@@ -326,7 +326,7 @@ footer{
       </ul>
       </div>
       <ul class="events-view" data-panel="events" hidden>
-        <li data-flyer="0" data-event="photo-lecture-raquel-natalicchio" class="active">Photo Lecture Night</li>
+        <li data-flyer="0" data-event="photo-lecture-joe-spinoza" class="active">Photo Lecture Night</li>
         <li data-flyer="1" data-event="film-photography-workshop">Film Photography Workshop</li>
         <li data-flyer="2" data-event="photo-walk">Photo Walk</li>
       </ul>
@@ -513,6 +513,17 @@ footer{
     var status = form.querySelector('small[role="status"]');
     var button = form.querySelector('.submit');
     var val = function(k){ return (form.querySelector('[name="' + k + '"]').value || '').trim(); };
+    var idle = 'RSVP';
+
+    // A capped event that's full keeps taking sign-ups, as a waitlist.
+    if (e.cap) {
+      fetch('/api/rsvp?event=' + encodeURIComponent(e.slug)).then(function(r){ return r.json(); }).then(function(d){
+        if (!d.full) return;
+        idle = 'Join the waitlist';
+        form.querySelector('.rsvp-head').textContent = (e.label || e.title) + ' is full \u2014 join the waitlist';
+        if (!button.disabled) button.textContent = idle;
+      }).catch(function(){});
+    }
 
     form.addEventListener('submit', function(ev){
       ev.preventDefault();
@@ -528,14 +539,20 @@ footer{
       }).then(function(res){
         return res.json().catch(function(){ return {}; }).then(function(body){
           if (!res.ok) throw new Error(res.status === 503 ? '' : (body.error || ''));
+          return body;
         });
-      }).then(function(){
+      }).then(function(body){
         form.reset();
-        button.textContent = 'You\u2019re on the list';
-        status.textContent = 'Check your inbox for a confirmation';
+        if (body.waitlist) {
+          button.textContent = 'You\u2019re on the waitlist';
+          status.textContent = 'This one\u2019s full \u2014 we\u2019ll email you if a spot opens up';
+        } else {
+          button.textContent = 'You\u2019re on the list';
+          status.textContent = 'Check your inbox for a confirmation';
+        }
       }).catch(function(err){
         button.disabled = false;
-        button.textContent = 'RSVP';
+        button.textContent = idle;
         status.textContent = err.message || 'That didn\u2019t go through \u2014 please email info@thisisacestudio.com';
       });
     });

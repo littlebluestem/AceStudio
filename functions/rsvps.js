@@ -34,10 +34,10 @@ async function readAll(kv) {
 
 function csv(rows, events) {
   const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const lines = [["Event", "Date", "Name", "Email", "Note", "RSVP'd"].map(cell).join(",")];
+  const lines = [["Event", "Date", "Status", "Name", "Email", "Note", "RSVP'd"].map(cell).join(",")];
   for (const r of rows.sort((a, b) => (a.event + a.created).localeCompare(b.event + b.created))) {
     const e = events?.[r.event];
-    lines.push([e?.title || r.event, e?.date || "", r.name, r.email, r.note, r.created].map(cell).join(","));
+    lines.push([e?.title || r.event, e?.date || "", r.status === "waitlist" ? "Waitlist" : "Confirmed", r.name, r.email, r.note, r.created].map(cell).join(","));
   }
   return new Response(lines.join("\n") + "\n", {
     headers: {
@@ -48,9 +48,9 @@ function csv(rows, events) {
   });
 }
 
-function section(slug, event, rows) {
-  const title = event ? event.title : slug;
-  const meta = event ? whenLine(event) : "No longer on the site";
+const isTest = (r) => /@example\.com$/i.test(r.email || "") || /\btest\b/i.test(r.name || "");
+
+function table(rows) {
   const body = rows
     .sort((a, b) => (a.created || "").localeCompare(b.created || ""))
     .map(
@@ -59,11 +59,27 @@ function section(slug, event, rows) {
         `<td class="note">${escapeHtml(r.note || "")}</td><td>${escapeHtml((r.created || "").slice(0, 10))}</td></tr>`
     )
     .join("");
+  return `<table><thead><tr><th>Name</th><th>Email</th><th>Note</th><th>RSVP'd</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+
+// Records with no status predate waitlists, so they're confirmed. The
+// waitlist is listed in sign-up order, so the top name is next in line.
+function section(slug, event, rows) {
+  const title = event ? event.title : slug;
+  const meta = event ? whenLine(event) : "No longer on the site";
+  const confirmed = rows.filter((r) => r.status !== "waitlist");
+  const waitlist = rows.filter((r) => r.status === "waitlist");
   const cap = event && event.cap ? ` of ${event.cap}` : "";
+  const waiting = waitlist.length ? ` · ${waitlist.length} waitlisted` : "";
+  // Test entries are listed but don't take a seat (same rule as the cap in api/rsvp.js).
+  const tests = confirmed.filter(isTest).length;
+  const seats = confirmed.length - tests;
+  const testNote = tests ? ` (+${tests} test)` : "";
   return `<section>
-<h2>${escapeHtml(title)} <span class="count">${rows.length}${cap} RSVP${rows.length === 1 ? "" : "s"}</span></h2>
+<h2>${escapeHtml(title)} <span class="count">${seats}${cap} RSVP${seats === 1 ? "" : "s"}${testNote}${waiting}</span></h2>
 <p class="meta">${escapeHtml(meta)}</p>
-<table><thead><tr><th>Name</th><th>Email</th><th>Note</th><th>RSVP'd</th></tr></thead><tbody>${body}</tbody></table>
+${table(confirmed)}
+${waitlist.length ? `<h3>Waitlist, in order</h3>\n${table(waitlist)}` : ""}
 </section>`;
 }
 
@@ -76,6 +92,7 @@ function page(content) {
   h1{font-size:14px;letter-spacing:.16em;text-transform:uppercase;font-weight:400;margin:0 0 2rem;display:flex;justify-content:space-between;gap:1rem;}
   h1 a{color:#8E1D1A;}
   h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;margin:0;}
+  h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:#8E1D1A;margin:1.6rem 0 .4rem;}
   section{border-top:1px solid #A9A29A;padding-top:1.1rem;margin-top:2.2rem;}
   .count,.meta{color:#4F4B46;font-weight:400;}
   .meta{margin:.2rem 0 .9rem;}

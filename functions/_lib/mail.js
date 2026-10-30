@@ -23,22 +23,26 @@ export function escapeHtml(str) {
     .replace(/'/g, "&#39;");
 }
 
-export async function sendRsvpConfirmation({ name, email, title, when, dated, attachment }, env) {
+export async function sendRsvpConfirmation({ name, email, title, when, dated, waitlist, cap, attachment }, env) {
   if (!env.RESEND_API_KEY) {
     console.log("no RESEND_API_KEY bound — RSVP confirmation not sent to", email);
     return false;
   }
 
   const first = name.split(/\s+/)[0];
-  const lines = dated
+  // The first line is the one that gets the bold title in the HTML version.
+  const lines = waitlist
+    ? [`You're on the waitlist for ${title}.`, `${when}`, `All ${cap} seats are spoken for, so you're not confirmed yet. If a spot opens up we'll email you right away — please don't come unless you hear from us.`, "If you'd rather come off the waitlist, just reply and let us know."]
+    : dated
     ? [`You're on the list for ${title}.`, `${when}`, `Ace Studio, ${ADDRESS}`, "Nothing else to do — see you there. If your plans change, just reply and let us know."]
     : [`You're on the list for ${title}.`, "Dates aren't set yet — we'll email you as soon as they are.", "If you change your mind, just reply and let us know."];
+  const lead = waitlist ? "You're on the waitlist for" : "You're on the list for";
 
   const text = `Hi ${first},\n\n${lines.join("\n\n")}\n\nAce Studio\nthisisacestudio.com\n`;
   const html = `<!doctype html>
 <html><body style="margin:0;padding:32px;background:#FFF8EF;color:#000022;font:15px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace">
 <p style="margin:0 0 1.2em">Hi ${escapeHtml(first)},</p>
-${lines.map((l, i) => `<p style="margin:0 0 1.2em">${i === 0 ? `You're on the list for <strong>${escapeHtml(title)}</strong>.` : escapeHtml(l)}</p>`).join("\n")}
+${lines.map((l, i) => `<p style="margin:0 0 1.2em">${i === 0 ? `${lead} <strong>${escapeHtml(title)}</strong>.` : escapeHtml(l)}</p>`).join("\n")}
 <p style="margin:2em 0 0">Ace Studio<br><a href="https://thisisacestudio.com" style="color:#8E1D1A">thisisacestudio.com</a></p>
 </body></html>`;
 
@@ -50,11 +54,11 @@ ${lines.map((l, i) => `<p style="margin:0 0 1.2em">${i === 0 ? `You're on the li
         from: env.RSVP_FROM || DEFAULT_FROM,
         to: [email],
         reply_to: env.MAIL_TO || DEFAULT_REPLY_TO,
-        subject: `You're on the list — ${title}`,
+        subject: waitlist ? `You're on the waitlist — ${title}` : `You're on the list — ${title}`,
         text,
         html,
         // Resend fetches the file from the site itself.
-        ...(attachment ? { attachments: [{ path: attachment, filename: attachment.split("/").pop() }] } : {}),
+        ...(attachment && !waitlist ? { attachments: [{ path: attachment, filename: attachment.split("/").pop() }] } : {}),
       }),
     });
     if (!res.ok) {

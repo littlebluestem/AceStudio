@@ -2,6 +2,15 @@
   "_readme": "The Events tab's RSVP list. One entry per event; `slug` is permanent once people have RSVP'd (it's the key their RSVPs are stored under). See README.md > RSVPs.",
   "events": [
     {
+      "slug": "photo-lecture-joe-spinoza",
+      "title": "Photo Lecture Series: Joe Spinoza",
+      "date": "2026-11-12",
+      "time": "6:30 – 8:00 PM",
+      "rsvp": true,
+      "cap": 25,
+      "label": "Photo Lecture"
+    },
+    {
       "slug": "film-photography-workshop",
       "title": "Film Photography Workshop",
       "date": "2027-01-10",

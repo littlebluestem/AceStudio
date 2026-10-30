@@ -60,6 +60,13 @@ The Events tab takes RSVPs, ported from the Volta site.
   secret (any username). The password is in the Mac's Keychain as
   "Ace Studio RSVP portal". `/rsvps?format=csv` downloads everything. Past
   events fold into an Archived section; nothing is deleted.
+- Waitlist: an event with a `cap` takes that many confirmed RSVPs, then
+  keeps taking sign-ups as a waitlist (`status: "waitlist"` on the record).
+  Waitlisters get a "you're on the waitlist" email and the form's button
+  reads "Join the waitlist" once the event is full. Test entries
+  (example.com, or "test" in the name) don't take a seat. RSVPs from
+  before waitlists have no status and count as confirmed. Moving someone
+  off the waitlist is by hand for now: email them.
 - Preview deployments share the same KV namespace, so a test RSVP on a
   preview lands on the real list.
 

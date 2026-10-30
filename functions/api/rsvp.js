@@ -13,6 +13,13 @@
  * the portal (functions/rsvps.js) can read the whole guest list in one
  * list() call. Metadata is capped at 1KB, which is why `note` is short.
  *
+ * An event with a `cap` takes that many confirmed RSVPs; everyone after
+ * that is stored with `status: "waitlist"` and gets a waitlist email
+ * instead of a confirmation. Records without a status (every RSVP from
+ * before waitlists existed) count as confirmed. A re-RSVP keeps whatever
+ * status the person already had. GET /api/rsvp?event=<slug> tells the form
+ * whether the event is full, so the button can say "Join the waitlist".
+ *
  * Configuration (Pages > Settings > Variables and Secrets, and Bindings):
  *   RSVPS           KV namespace binding — without it every RSVP 503s
  *   RESEND_API_KEY  already set for the enquiry form; no new secret needed
@@ -60,24 +67,23 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
   const key = `rsvp:${slug}:${email}`;
 
-  // Re-RSVPing never counts against the cap — it isn't a new seat. Racy at
-  // the very last seat on purpose; nothing here runs at a volume where two
-  // people hitting submit in the same instant is worth a lock.
-  const cap = Number.isInteger(event.cap) && event.cap > 0 ? event.cap : null;
-  if (cap && !(await env.RSVPS.get(key))) {
-    let count = 0;
-    let cursor;
-    do {
-      const listed = await env.RSVPS.list({ prefix: `rsvp:${slug}:`, cursor, limit: 1000 });
-      count += listed.keys.length;
-      cursor = listed.list_complete ? undefined : listed.cursor;
-    } while (cursor && count < cap);
-    if (count >= cap) {
-      return json({ error: "This one's full. Email info@thisisacestudio.com to go on the waitlist." }, 409);
-    }
+  // Re-RSVPing never takes a new seat — the person keeps their status and
+  // their place in line. Racy at the very last seat on purpose; nothing here
+  // runs at a volume where two people hitting submit in the same instant is
+  // worth a lock.
+  let existing = null;
+  try {
+    existing = await env.RSVPS.get(key, "json");
+  } catch {}
+  let status = existing ? existing.status || "confirmed" : "confirmed";
+  if (!existing && capOf(event) && (await confirmedCount(env.RSVPS, slug, capOf(event))) >= capOf(event)) {
+    status = "waitlist";
   }
 
-  const record = { name, email, note, event: slug, created: new Date().toISOString() };
+  const record = {
+    name, email, note, event: slug, status,
+    created: (existing && existing.created) || new Date().toISOString(),
+  };
   try {
     await env.RSVPS.put(key, JSON.stringify(record), { metadata: record });
   } catch (err) {
@@ -90,6 +96,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const sending = sendRsvpConfirmation(
     {
       name, email, title: event.title, when: whenLine(event), dated: Boolean(event.date),
+      waitlist: status === "waitlist", cap: capOf(event),
       // `attachment` in events.json: a file on this site to attach, e.g. a details flyer.
       attachment: event.attachment ? new URL(event.attachment, request.url).href : null,
     },
@@ -98,5 +105,41 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (typeof waitUntil === "function") waitUntil(sending);
   else await sending;
 
-  return json({ ok: true });
+  return json({ ok: true, waitlist: status === "waitlist" });
+}
+
+// GET /api/rsvp?event=<slug> — { full } for the form's button. Only says
+// whether the confirmed list is full, never who's on it.
+export async function onRequestGet({ request, env }) {
+  const slug = new URL(request.url).searchParams.get("event") || "";
+  const events = await loadEvents(request, env);
+  const event = events && events[slug];
+  if (!event || !event.rsvp || !env.RSVPS) return json({ full: false });
+  const cap = capOf(event);
+  const full = Boolean(cap) && (await confirmedCount(env.RSVPS, slug, cap)) >= cap;
+  return json({ full });
+}
+
+const isTest = (r) => /@example\.com$/i.test(r.email || "") || /\btest\b/i.test(r.name || "");
+
+function capOf(event) {
+  return Number.isInteger(event.cap) && event.cap > 0 ? event.cap : null;
+}
+
+// Confirmed RSVPs for an event, counting up to `stop`. Waitlisted records
+// don't hold a seat; records with no status are pre-waitlist RSVPs, so
+// they're confirmed. Test entries (an example.com address, or "test" in the
+// name — same rule as /rsvps/thank-you) don't take a seat either.
+async function confirmedCount(kv, slug, stop) {
+  let count = 0;
+  let cursor;
+  do {
+    const listed = await kv.list({ prefix: `rsvp:${slug}:`, cursor, limit: 1000 });
+    for (const k of listed.keys) {
+      const r = k.metadata || (await kv.get(k.name, "json"));
+      if (r && r.status !== "waitlist" && !isTest(r)) count++;
+    }
+    cursor = listed.list_complete ? undefined : listed.cursor;
+  } while (cursor && count < stop);
+  return count;
 }
